@@ -35,6 +35,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.forrestguice.suntimeswidget.themes.WidgetThemeConfigActivity;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
@@ -44,18 +46,28 @@ public class ColorChooser implements TextWatcher, View.OnFocusChangeListener
     private static final String DIALOGTAG_COLOR = "colorchooser";
 
     private String chooserID = "0";
-    final protected ImageButton button;
-    final protected EditText edit;
-    final protected TextView label;
+    protected ImageButton button;
+    protected EditText edit;
+    protected TextView label;
 
     private int color;
     private boolean isRunning = false, isRemoving = false;
     private boolean isCollapsed = false;
 
     public static final char[] alphabet = {'#', '0', '1', '2', '3', '4', '5', '6', '7','8', '9', 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F'};
-    protected final HashSet<Character> inputSet;
+    protected HashSet<Character> inputSet;
 
     public ColorChooser(final Context context, TextView txtLabel, EditText editField, ImageButton imgButton, String id)
+    {
+        init(context, txtLabel, editField, imgButton, id);
+    }
+
+    public ColorChooser(final View root, final Context context, int labelID, int editID, int buttonID, String id)
+    {
+        init( context, (TextView)root.findViewById(labelID), (EditText)root.findViewById(editID), (ImageButton)root.findViewById(buttonID), id );
+    }
+
+    private void init(final Context context, TextView txtLabel, EditText editField, ImageButton imgButton, String id)
     {
         chooserID = id;
 
@@ -307,6 +319,7 @@ public class ColorChooser implements TextWatcher, View.OnFocusChangeListener
         {
             chooser.setColor(newColor);
         }
+        signalOnColorChanged(newColor);
     }
     protected void onFocusGained(View view)
     {
@@ -360,6 +373,7 @@ public class ColorChooser implements TextWatcher, View.OnFocusChangeListener
 
         //Log.d("DEBUG", "color is " + editable.toString());
         edit.setText(editable);
+        edit.setText(editable);
         setColor(editable.toString());
         onColorChanged(getColor());
     }
@@ -407,4 +421,25 @@ public class ColorChooser implements TextWatcher, View.OnFocusChangeListener
         }
     }
 
+    public static abstract class OnColorChangedListener
+    {
+        public void onColorChanged(int newColor ) {}
+    }
+
+    protected OnColorChangedListener listener = null;
+    public void setOnColorChangedListener(OnColorChangedListener listener )
+    {
+        this.listener = listener;
+    }
+    public void clearOnColorChangedListener()
+    {
+        this.listener = null;
+    }
+    private void signalOnColorChanged(int newColor)
+    {
+        if (listener != null)
+        {
+            listener.onColorChanged(newColor);
+        }
+    }
 }
