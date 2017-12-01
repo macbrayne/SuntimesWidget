@@ -42,4 +42,13 @@
 
     </header>
 
+    <header android:icon="?attr/icActionSettings"
+            android:title="App Colors"
+            android:summary="">
+
+        <intent android:targetPackage="com.forrestguice.suntimeswidget"
+                android:targetClass="com.forrestguice.suntimeswidget.settings.AppColorsActivity" />
+
+    </header>
+
 </preference-headers>
