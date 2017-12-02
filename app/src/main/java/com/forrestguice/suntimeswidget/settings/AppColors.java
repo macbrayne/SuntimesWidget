@@ -22,6 +22,10 @@ import android.content.SharedPreferences;
 
 import com.forrestguice.suntimeswidget.R;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
+
 public class AppColors
 {
     public static final String PREFS_COLORS = "com.forrestguice.suntimeswidget.colors";
@@ -30,12 +34,17 @@ public class AppColors
 
     public static final String APPCOLORS_NAME = "name";
     public static final String APPCOLORS_DISPLAY = "display";
-
     public static final String APPCOLORS_DARK_SUNRISE = "dark_sunrise";
     public static final String APPCOLORS_DARK_SUNSET = "dark_sunset";
-
     public static final String APPCOLORS_LIGHT_SUNRISE = "light_sunrise";
     public static final String APPCOLORS_LIGHT_SUNSET = "light_sunset";
+
+    public static final String DEFAULT_NAME = "default";
+    public static final String DEFAULT_DISPLAY = "Default";
+    public static final int DEFAULT_DARK_SUNRISE = R.color.sunIcon_color_rising_dark;
+    public static final int DEFAULT_DARK_SUNSET = R.color.sunIcon_color_setting_dark;
+    public static final int DEFAULT_LIGHT_SUNRISE = R.color.sunIcon_color_rising_light;
+    public static final int DEFAULT_LIGHT_SUNSET = R.color.sunIcon_color_setting_light;
 
     protected String schemeName;
     protected String displayString;
@@ -48,24 +57,20 @@ public class AppColors
 
     public AppColors(Context context)
     {
-        this.schemeName = "default";
-        this.displayString = "Default";
-
-        this.dark_sunriseColor = context.getColor(R.color.sunIcon_color_rising_dark);
-        this.dark_sunsetColor = context.getColor(R.color.sunIcon_color_setting_dark);
-
-        this.light_sunriseColor = context.getColor(R.color.sunIcon_color_rising_dark);
-        this.light_sunsetColor = context.getColor(R.color.sunIcon_color_setting_dark);
+        this.schemeName = DEFAULT_NAME;
+        this.displayString = DEFAULT_DISPLAY;
+        this.dark_sunriseColor = context.getColor(DEFAULT_DARK_SUNRISE);
+        this.dark_sunsetColor = context.getColor(DEFAULT_DARK_SUNSET);
+        this.light_sunriseColor = context.getColor(DEFAULT_LIGHT_SUNRISE);
+        this.light_sunsetColor = context.getColor(DEFAULT_LIGHT_SUNSET);
     }
 
     public AppColors( AppColors other )
     {
         this.schemeName = other.name();
         this.displayString = other.getDisplayString();
-
         this.dark_sunriseColor = other.getDarkSunriseColor();
         this.dark_sunsetColor = other.getDarkSunsetColor();
-
         this.light_sunriseColor = other.getLightSunriseColor();
         this.light_sunsetColor = other.getLightSunsetColor();
     }
@@ -100,6 +105,11 @@ public class AppColors
         return light_sunsetColor;
     }
 
+    public boolean isDefault()
+    {
+        return schemeName.equals(DEFAULT_NAME);
+    }
+
     public boolean loadAppColors(Context context, String schemeName)
     {
         return loadAppColors(context, appColorsPrefs(context), schemeName);
@@ -108,15 +118,12 @@ public class AppColors
     {
         String prefix = appColorsPrefix(this.schemeName);
 
-        this.schemeName = prefs.getString(prefix + APPCOLORS_NAME, "default");
-        this.displayString = prefs.getString(prefix + APPCOLORS_DISPLAY, "Default");
-
-        this.dark_sunriseColor = prefs.getInt(prefix + APPCOLORS_DARK_SUNRISE, context.getColor(R.color.sunIcon_color_rising_dark));
-        this.dark_sunsetColor = prefs.getInt(prefix + APPCOLORS_DARK_SUNSET, context.getColor(R.color.sunIcon_color_setting_dark));
-
-        this.light_sunriseColor = prefs.getInt(prefix + APPCOLORS_LIGHT_SUNRISE, context.getColor(R.color.sunIcon_color_rising_dark));
-        this.light_sunsetColor = prefs.getInt(prefix + APPCOLORS_LIGHT_SUNSET, context.getColor(R.color.sunIcon_color_setting_dark));
-
+        this.schemeName = prefs.getString(prefix + APPCOLORS_NAME, DEFAULT_NAME);
+        this.displayString = prefs.getString(prefix + APPCOLORS_DISPLAY, DEFAULT_DISPLAY);
+        this.dark_sunriseColor = prefs.getInt(prefix + APPCOLORS_DARK_SUNRISE, context.getColor(DEFAULT_DARK_SUNRISE));
+        this.dark_sunsetColor = prefs.getInt(prefix + APPCOLORS_DARK_SUNSET, context.getColor(DEFAULT_DARK_SUNSET));
+        this.light_sunriseColor = prefs.getInt(prefix + APPCOLORS_LIGHT_SUNRISE, context.getColor(DEFAULT_LIGHT_SUNRISE));
+        this.light_sunsetColor = prefs.getInt(prefix + APPCOLORS_LIGHT_SUNSET, context.getColor(DEFAULT_LIGHT_SUNSET));
         return true;
     }
 
@@ -131,10 +138,8 @@ public class AppColors
 
         editor.putString(prefix + APPCOLORS_NAME, this.schemeName);
         editor.putString(prefix + APPCOLORS_DISPLAY, this.displayString);
-
         editor.putInt(prefix + APPCOLORS_DARK_SUNRISE, this.dark_sunriseColor);
         editor.putInt(prefix + APPCOLORS_DARK_SUNSET, this.dark_sunsetColor);
-
         editor.putInt(prefix + APPCOLORS_LIGHT_SUNRISE, this.light_sunriseColor);
         editor.putInt(prefix + APPCOLORS_LIGHT_SUNSET, this.light_sunsetColor);
 
@@ -152,10 +157,8 @@ public class AppColors
 
         editor.remove(prefix + APPCOLORS_NAME);
         editor.remove(prefix + APPCOLORS_DISPLAY);
-
         editor.remove(prefix + APPCOLORS_DARK_SUNRISE);
         editor.remove(prefix + APPCOLORS_DARK_SUNSET);
-
         editor.remove(prefix + APPCOLORS_LIGHT_SUNRISE);
         editor.remove(prefix + APPCOLORS_LIGHT_SUNSET);
 
@@ -170,5 +173,34 @@ public class AppColors
     public static SharedPreferences appColorsPrefs(Context context)
     {
         return context.getSharedPreferences(PREFS_COLORS, Context.MODE_PRIVATE);
+    }
+
+    public static ArrayList<String> scanForAppColors(Context context)
+    {
+        ArrayList<String> appColorsList = new ArrayList<>();
+
+        SharedPreferences prefs = appColorsPrefs(context);
+        Map<String,?> keys = prefs.getAll();
+        if (keys != null)
+        {
+            for (Map.Entry<String, ?> entry : keys.entrySet())
+            {
+                String key = entry.getKey();
+                if (key.endsWith("_" + APPCOLORS_NAME))
+                {
+                    Object value = entry.getValue();
+                    if (value != null)
+                    {
+                        appColorsList.add(value.toString());
+                    }
+                }
+            }
+        }
+
+        appColorsList.remove(DEFAULT_NAME);
+        Collections.sort(appColorsList, String.CASE_INSENSITIVE_ORDER);
+        appColorsList.add(0, DEFAULT_NAME);
+
+        return appColorsList;
     }
 }
