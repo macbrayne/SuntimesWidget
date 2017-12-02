@@ -43,6 +43,9 @@ public class AppSettings
     public static final String PREF_KEY_APPEARANCE_THEME = "app_appearance_theme";
     public static final String PREF_DEF_APPEARANCE_THEME = THEME_DARK;
 
+    public static final String PREF_KEY_APPEARANCE_COLORS = "app_appearance_colors";
+    public static final String PREF_DEF_APPEARANCE_COLORS = "default";
+
     public static final String PREF_KEY_LOCALE_MODE = "app_locale_mode";
     public static final LocaleMode PREF_DEF_LOCALE_MODE = LocaleMode.SYSTEM_LOCALE;
 
@@ -209,6 +212,23 @@ public class AppSettings
     public static boolean isLocaleRtl(Context context)
     {
         return context.getResources().getBoolean(R.bool.is_rtl);
+    }
+
+    /**
+     * Preference: color scheme
+     * @return color scheme name
+     */
+    public static String loadAppColorsPref( Context context )
+    {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        return pref.getString(PREF_KEY_APPEARANCE_COLORS, PREF_DEF_APPEARANCE_COLORS);
+    }
+
+    public static void setAppColorsPref( Context context, String schemeName )
+    {
+        SharedPreferences.Editor pref = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        pref.putString(PREF_KEY_APPEARANCE_COLORS, schemeName);
+        pref.apply();
     }
 
     /**
