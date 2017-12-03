@@ -18,10 +18,12 @@
 package com.forrestguice.suntimeswidget.settings;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -100,10 +102,13 @@ public class AppColorsView extends LinearLayout
         spinScheme.setOnItemSelectedListener(selectedSchemeChanged);
 
         btnAddScheme = (ImageButton)findViewById(R.id.addButton);
+        btnAddScheme.setOnClickListener(addSchemeClick);
 
         btnEditScheme = (ImageButton)findViewById(R.id.editButton);
+        btnEditScheme.setOnClickListener(editSchemeClick);
 
         btnDeleteScheme = (ImageButton)findViewById(R.id.deleteButton);
+        btnDeleteScheme.setOnClickListener(deleteSchemeClick);
 
         flipScheme = (ViewFlipper)findViewById(R.id.flip_scheme);
         editScheme = (EditText)findViewById(R.id.edit_scheme_name);
@@ -138,12 +143,102 @@ public class AppColorsView extends LinearLayout
         public void onNothingSelected(AdapterView<?> parent) { }
     };
 
+    private View.OnClickListener addSchemeClick = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            // TODO
+        }
+    };
+
+    private View.OnClickListener editSchemeClick = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            // TODO
+        }
+    };
+
+    private View.OnClickListener deleteSchemeClick = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            if (AppColorsView.this.selectedColors != null && !AppColorsView.this.selectedColors.isDefault())
+            {
+                AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+                alertDialog.setTitle("Delete Colors");                                              // TODO: i18n
+                alertDialog.setMessage("Are you sure you want to delete " + selectedScheme + "?");  // TODO: i18n
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete",                        // TODO: i18n
+                        new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                // TODO: delete
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",       // TODO: i18n
+                        new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            }
+        }
+    };
+
     private RadioGroup.OnCheckedChangeListener selectedThemeChanged = new RadioGroup.OnCheckedChangeListener()
     {
         @Override
-        public void onCheckedChanged(RadioGroup group, @IdRes int checkedId)
+        public void onCheckedChanged(RadioGroup group, @IdRes final int checkedId)
         {
-            signalSelectedThemeChanged(checkedId);
+            if (isModified)
+            {
+                AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+                alertDialog.setTitle("Save changes?");                              // TODO: i18n
+                alertDialog.setMessage("Colors were modified. Save the changes?");  // TODO: i18n
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Save",          // TODO: i18n
+                        new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                                // TODO: save
+                                setThemeTab(checkedId);
+                                signalSelectedThemeChanged(checkedId);
+                            }
+                        });
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Discard",       // TODO: i18n
+                        new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                                setThemeTab(checkedId);
+                                signalSelectedThemeChanged(checkedId);
+                            }
+                        });
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Cancel",         // TODO: i18n
+                        new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
+
+                setThemeTab(appTheme);
+                alertDialog.show();
+
+            } else {
+                signalSelectedThemeChanged(checkedId);
+            }
         }
     };
 
