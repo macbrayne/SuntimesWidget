@@ -205,4 +205,12 @@ public class AppColors
 
         return appColorsList;
     }
+
+    public static ArrayAdapter<String> createAppColorsAdapter(Context context)
+    {
+        ArrayList<String> appColors = AppColors.scanForAppColors(context);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, appColors);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        return adapter;
+    }
 }

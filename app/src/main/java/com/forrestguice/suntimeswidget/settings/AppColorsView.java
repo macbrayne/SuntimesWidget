@@ -26,6 +26,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -90,9 +92,11 @@ public class AppColorsView extends LinearLayout
      */
     protected void initViews( Context context )
     {
+        spinScheme = (Spinner)findViewById(R.id.spin_scheme_name);
+        spinScheme.setAdapter(AppColors.createAppColorsAdapter(context));
+        spinScheme.setOnItemSelectedListener(selectedSchemeChanged);
         flipScheme = (ViewFlipper)findViewById(R.id.flip_scheme);
         editScheme = (EditText)findViewById(R.id.edit_scheme_name);
-        spinScheme = (Spinner)findViewById(R.id.spin_scheme_name);
 
         selectTheme = (RadioGroup)findViewById(R.id.tabs);
         selectTheme.setOnCheckedChangeListener(selectedThemeChanged);
@@ -110,6 +114,19 @@ public class AppColorsView extends LinearLayout
         sunsetColor.setCollapsed(true);
         colorsChoosers.add(sunsetColor);
     }
+
+    private AdapterView.OnItemSelectedListener selectedSchemeChanged = new AdapterView.OnItemSelectedListener()
+    {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+        {
+            selectedScheme = parent.getItemAtPosition(position).toString();
+            Log.d("DEBUG", "scheme selected: " + selectedScheme);
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) { }
+    };
 
     private RadioGroup.OnCheckedChangeListener selectedThemeChanged = new RadioGroup.OnCheckedChangeListener()
     {
