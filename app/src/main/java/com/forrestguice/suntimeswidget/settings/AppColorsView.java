@@ -186,6 +186,7 @@ public class AppColorsView extends LinearLayout
         if (isInEditMode())
             return;
 
+        selectedColors = new AppColors(context);
         if (appTheme == R.style.AppTheme_Light)
         {
             sunriseColor.setColor(Color.BLUE);   // TODO
@@ -275,6 +276,14 @@ public class AppColorsView extends LinearLayout
         {
             groupTitle.setVisibility((hideTitle ? View.GONE : View.VISIBLE));
         }
+    }
+
+    /** Property: selectedAppColors */
+    private String selectedScheme = AppColors.DEFAULT_NAME;
+    private AppColors selectedColors;
+    public String selectedAppColors()
+    {
+        return selectedScheme;
     }
 
     /** Property: appTheme */
