@@ -232,6 +232,22 @@ public class AppSettings
     }
 
     /**
+     * @param context context for accessing sharedprefs
+     * @return an AppColors obj (or null if configured to default colors)
+     */
+    public static AppColors loadAppColors( Context context )
+    {
+        String appColorsName = loadAppColorsPref(context);
+        AppColors appColors = null;
+        if (!appColorsName.equals(AppColors.DEFAULT_NAME))
+        {
+            appColors = new AppColors(context);
+            appColors.loadAppColors(context, appColorsName);
+        }
+        return appColors;
+    }
+
+    /**
      * Actions that can be performed when the clock is clicked.
      */
     public static enum ClockTapAction

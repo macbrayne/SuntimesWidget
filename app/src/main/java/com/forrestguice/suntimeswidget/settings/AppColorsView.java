@@ -29,6 +29,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -52,6 +53,7 @@ public class AppColorsView extends LinearLayout
     private ViewFlipper flipScheme;
     private EditText editScheme;
     private Spinner spinScheme;
+    private ImageButton btnAddScheme, btnEditScheme, btnDeleteScheme;
 
     private RadioGroup selectTheme;
 
@@ -96,6 +98,13 @@ public class AppColorsView extends LinearLayout
         spinScheme = (Spinner)findViewById(R.id.spin_scheme_name);
         spinScheme.setAdapter(AppColors.createAppColorsAdapter(context));
         spinScheme.setOnItemSelectedListener(selectedSchemeChanged);
+
+        btnAddScheme = (ImageButton)findViewById(R.id.addButton);
+
+        btnEditScheme = (ImageButton)findViewById(R.id.editButton);
+
+        btnDeleteScheme = (ImageButton)findViewById(R.id.deleteButton);
+
         flipScheme = (ViewFlipper)findViewById(R.id.flip_scheme);
         editScheme = (EditText)findViewById(R.id.edit_scheme_name);
 
@@ -187,14 +196,22 @@ public class AppColorsView extends LinearLayout
             return;
 
         selectedColors = new AppColors(context);
+        boolean isDefault = selectedScheme.equals(AppColors.DEFAULT_NAME);
+        if (!isDefault)
+        {
+            selectedColors.loadAppColors(context, selectedScheme);
+        }
+        btnDeleteScheme.setEnabled(!isDefault);
+        btnEditScheme.setEnabled(!isDefault);
+
         if (appTheme == R.style.AppTheme_Light)
         {
-            sunriseColor.setColor(Color.BLUE);   // TODO
-            sunsetColor.setColor(Color.GREEN);
+            sunriseColor.setColor(selectedColors.getLightSunriseColor());
+            sunsetColor.setColor(selectedColors.getLightSunsetColor());
 
         } else {
-            sunriseColor.setColor(Color.YELLOW);   // TODO
-            sunsetColor.setColor(Color.RED);
+            sunriseColor.setColor(selectedColors.getDarkSunriseColor());
+            sunsetColor.setColor(selectedColors.getDarkSunsetColor());
         }
         updateViews(context);
     }
@@ -216,10 +233,9 @@ public class AppColorsView extends LinearLayout
                 viewMode = AppColorsViewMode.MODE_CUSTOM_SELECT;
             }
             setMode(viewMode);
-
-            sunriseColor.setColor(bundle.getInt(KEY_SUNRISECOLOR, sunriseColor.getColor()));
-            sunsetColor.setColor(bundle.getInt(KEY_SUNSETCOLOR, sunsetColor.getColor()));
         }
+        sunriseColor.setColor(bundle.getInt(KEY_SUNRISECOLOR, sunriseColor.getColor()));
+        sunsetColor.setColor(bundle.getInt(KEY_SUNSETCOLOR, sunsetColor.getColor()));
         isModified = bundle.getBoolean(KEY_MODIFIED, false);
         updateViews(getContext());
     }
@@ -291,6 +307,16 @@ public class AppColorsView extends LinearLayout
     public void setTheme( int themeId )
     {
         appTheme = themeId;
+        setThemeTab(themeId);
+        loadSettings(getContext());
+    }
+    public int getTheme()
+    {
+        return appTheme;
+    }
+
+    private void setThemeTab( int themeId )
+    {
         RadioButton themeButton = (RadioButton)findViewById(themeIdToTabId(themeId));
         if (themeButton != null)
         {
@@ -298,11 +324,6 @@ public class AppColorsView extends LinearLayout
             themeButton.setChecked(true);
             selectTheme.setOnCheckedChangeListener(selectedThemeChanged);
         }
-        loadSettings(getContext());
-    }
-    public int getTheme()
-    {
-        return appTheme;
     }
 
     protected int tabIdToStyleId(int tabId)
