@@ -45,6 +45,7 @@ import java.util.ArrayList;
 public class AppColorsView extends LinearLayout
 {
     public static final String KEY_DIALOGMODE = "dialogmode";
+    public static final String KEY_MODIFIED = "modified";
     public static final String KEY_SUNRISECOLOR = "sunrisecolor";
     public static final String KEY_SUNSETCOLOR = "sunsetcolor";
 
@@ -143,6 +144,7 @@ public class AppColorsView extends LinearLayout
         public void onColorChanged(int newColor)
         {
             super.onColorChanged(newColor);
+            isModified = true;
             updateViews(getContext());
         }
     };
@@ -217,6 +219,7 @@ public class AppColorsView extends LinearLayout
             sunriseColor.setColor(bundle.getInt(KEY_SUNRISECOLOR, sunriseColor.getColor()));
             sunsetColor.setColor(bundle.getInt(KEY_SUNSETCOLOR, sunsetColor.getColor()));
         }
+        isModified = bundle.getBoolean(KEY_MODIFIED, false);
         updateViews(getContext());
     }
 
@@ -229,6 +232,7 @@ public class AppColorsView extends LinearLayout
         bundle.putString(KEY_DIALOGMODE, mode.name());
         bundle.putInt(KEY_SUNRISECOLOR, sunriseColor.getColor());
         bundle.putInt(KEY_SUNSETCOLOR, sunsetColor.getColor());
+        bundle.putBoolean(KEY_MODIFIED, isModified);
         return true;
     }
 
@@ -247,6 +251,15 @@ public class AppColorsView extends LinearLayout
         boolean isValid = true;
         // TODO
         return isValid;
+    }
+
+    /**
+     * Property: isModified
+     */
+    private boolean isModified = false;
+    public boolean isModified()
+    {
+        return this.isModified;
     }
 
     /**
