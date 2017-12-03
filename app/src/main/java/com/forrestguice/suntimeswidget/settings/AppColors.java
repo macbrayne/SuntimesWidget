@@ -19,6 +19,8 @@ package com.forrestguice.suntimeswidget.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.v4.content.ContextCompat;
+import android.widget.ArrayAdapter;
 
 import com.forrestguice.suntimeswidget.R;
 
@@ -59,10 +61,10 @@ public class AppColors
     {
         this.schemeName = DEFAULT_NAME;
         this.displayString = DEFAULT_DISPLAY;
-        this.dark_sunriseColor = context.getColor(DEFAULT_DARK_SUNRISE);
-        this.dark_sunsetColor = context.getColor(DEFAULT_DARK_SUNSET);
-        this.light_sunriseColor = context.getColor(DEFAULT_LIGHT_SUNRISE);
-        this.light_sunsetColor = context.getColor(DEFAULT_LIGHT_SUNSET);
+        this.dark_sunriseColor = ContextCompat.getColor(context, DEFAULT_DARK_SUNRISE);
+        this.dark_sunsetColor = ContextCompat.getColor(context, DEFAULT_DARK_SUNSET);
+        this.light_sunriseColor = ContextCompat.getColor(context, DEFAULT_LIGHT_SUNRISE);
+        this.light_sunsetColor = ContextCompat.getColor(context, DEFAULT_LIGHT_SUNSET);
     }
 
     public AppColors( AppColors other )
