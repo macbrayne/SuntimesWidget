@@ -120,10 +120,10 @@ public class AppColors
 
         this.schemeName = prefs.getString(prefix + APPCOLORS_NAME, DEFAULT_NAME);
         this.displayString = prefs.getString(prefix + APPCOLORS_DISPLAY, DEFAULT_DISPLAY);
-        this.dark_sunriseColor = prefs.getInt(prefix + APPCOLORS_DARK_SUNRISE, context.getColor(DEFAULT_DARK_SUNRISE));
-        this.dark_sunsetColor = prefs.getInt(prefix + APPCOLORS_DARK_SUNSET, context.getColor(DEFAULT_DARK_SUNSET));
-        this.light_sunriseColor = prefs.getInt(prefix + APPCOLORS_LIGHT_SUNRISE, context.getColor(DEFAULT_LIGHT_SUNRISE));
-        this.light_sunsetColor = prefs.getInt(prefix + APPCOLORS_LIGHT_SUNSET, context.getColor(DEFAULT_LIGHT_SUNSET));
+        this.dark_sunriseColor = prefs.getInt(prefix + APPCOLORS_DARK_SUNRISE, ContextCompat.getColor(context, DEFAULT_DARK_SUNRISE));
+        this.dark_sunsetColor = prefs.getInt(prefix + APPCOLORS_DARK_SUNSET, ContextCompat.getColor(context, DEFAULT_DARK_SUNSET));
+        this.light_sunriseColor = prefs.getInt(prefix + APPCOLORS_LIGHT_SUNRISE, ContextCompat.getColor(context, DEFAULT_LIGHT_SUNRISE));
+        this.light_sunsetColor = prefs.getInt(prefix + APPCOLORS_LIGHT_SUNSET, ContextCompat.getColor(context, DEFAULT_LIGHT_SUNSET));
         return true;
     }
 
