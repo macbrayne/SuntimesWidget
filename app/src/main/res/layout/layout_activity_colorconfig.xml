@@ -24,7 +24,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.forrestguice.suntimeswidget.settings.AppColorsView
+        <com.forrestguice.suntimeswidget.settings.appcolors.AppColorsView
             android:id="@+id/colorconfig"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

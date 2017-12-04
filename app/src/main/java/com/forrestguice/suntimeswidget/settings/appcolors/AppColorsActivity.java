@@ -16,7 +16,7 @@
     along with SuntimesWidget.  If not, see <http://www.gnu.org/licenses/>.
 */ 
 
-package com.forrestguice.suntimeswidget.settings;
+package com.forrestguice.suntimeswidget.settings.appcolors;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.forrestguice.suntimeswidget.R;
 import com.forrestguice.suntimeswidget.SuntimesUtils;
+import com.forrestguice.suntimeswidget.settings.AppSettings;
 
 public class AppColorsActivity extends AppCompatActivity
 {

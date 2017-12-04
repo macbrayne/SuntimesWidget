@@ -47,7 +47,7 @@
             android:summary="">
 
         <intent android:targetPackage="com.forrestguice.suntimeswidget"
-                android:targetClass="com.forrestguice.suntimeswidget.settings.AppColorsActivity" />
+                android:targetClass="com.forrestguice.suntimeswidget.settings.appcolors.AppColorsActivity" />
 
     </header>
 

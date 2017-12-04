@@ -28,6 +28,7 @@ import android.util.Log;
 
 import com.forrestguice.suntimeswidget.R;
 import com.forrestguice.suntimeswidget.calculator.SuntimesRiseSetDataset;
+import com.forrestguice.suntimeswidget.settings.appcolors.AppColors;
 
 import java.util.Locale;
 
@@ -235,7 +236,7 @@ public class AppSettings
      * @param context context for accessing sharedprefs
      * @return an AppColors obj (or null if configured to default colors)
      */
-    public static AppColors loadAppColors( Context context )
+    public static AppColors loadAppColors(Context context )
     {
         String appColorsName = loadAppColorsPref(context);
         AppColors appColors = null;

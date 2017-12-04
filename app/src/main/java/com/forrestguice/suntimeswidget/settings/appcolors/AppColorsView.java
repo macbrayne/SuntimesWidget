@@ -15,11 +15,10 @@
     You should have received a copy of the GNU General Public License
     along with SuntimesWidget.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.forrestguice.suntimeswidget.settings;
+package com.forrestguice.suntimeswidget.settings.appcolors;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentManager;
@@ -29,7 +28,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -41,6 +39,7 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.forrestguice.suntimeswidget.R;
+import com.forrestguice.suntimeswidget.settings.ColorChooser;
 import com.forrestguice.suntimeswidget.themes.SuntimesTheme;
 
 import java.util.ArrayList;
@@ -282,7 +281,6 @@ public class AppColorsView extends LinearLayout
 
     public void onStop()
     {
-        // TODO
     }
 
     protected void loadSettings(Context context)
@@ -360,8 +358,8 @@ public class AppColorsView extends LinearLayout
      */
     public boolean validateInput()
     {
-        boolean isValid = true;
-        // TODO
+        boolean isValid = false;  // TODO
+        editScheme.setError("TODO: validateInput");
         return isValid;
     }
 
@@ -485,6 +483,10 @@ public class AppColorsView extends LinearLayout
                 editScheme.setEnabled(true);
                 spinScheme.setEnabled(false);
                 flipScheme.setDisplayedChild(1);
+                for (ColorChooser chooser : colorsChoosers)
+                {
+                    chooser.setEnabled(true);
+                }
                 setEditorEnabled(true);
                 break;
 
@@ -493,6 +495,10 @@ public class AppColorsView extends LinearLayout
                 editScheme.setEnabled(false);
                 spinScheme.setEnabled(true);
                 flipScheme.setDisplayedChild(0);
+                for (ColorChooser chooser : colorsChoosers)
+                {
+                    chooser.setEnabled(false);
+                }
                 setEditorEnabled(false);
                 break;
         }

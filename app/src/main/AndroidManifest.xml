@@ -68,7 +68,7 @@
 
         <!-- App Colors Activity -->
         <activity
-            android:name=".settings.AppColorsActivity"
+            android:name=".settings.appcolors.AppColorsActivity"
             android:label="@string/app_name"
             android:icon="@drawable/ic_suntimes">
         </activity>
