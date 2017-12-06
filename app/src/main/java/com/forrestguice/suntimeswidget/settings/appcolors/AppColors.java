@@ -35,21 +35,18 @@ public class AppColors
     public static final String APPCOLORS_KEY = "appcolors_";
 
     public static final String APPCOLORS_NAME = "name";
-    public static final String APPCOLORS_DISPLAY = "display";
     public static final String APPCOLORS_DARK_SUNRISE = "dark_sunrise";
     public static final String APPCOLORS_DARK_SUNSET = "dark_sunset";
     public static final String APPCOLORS_LIGHT_SUNRISE = "light_sunrise";
     public static final String APPCOLORS_LIGHT_SUNSET = "light_sunset";
 
     public static final String DEFAULT_NAME = "default";
-    public static final String DEFAULT_DISPLAY = "Default";
     public static final int DEFAULT_DARK_SUNRISE = R.color.sunIcon_color_rising_dark;
     public static final int DEFAULT_DARK_SUNSET = R.color.sunIcon_color_setting_dark;
     public static final int DEFAULT_LIGHT_SUNRISE = R.color.sunIcon_color_rising_light;
     public static final int DEFAULT_LIGHT_SUNSET = R.color.sunIcon_color_setting_light;
 
     protected String schemeName;
-    protected String displayString;
 
     protected int dark_sunriseColor;
     protected int dark_sunsetColor;
@@ -59,32 +56,31 @@ public class AppColors
 
     public AppColors(Context context)
     {
-        this.schemeName = DEFAULT_NAME;
-        this.displayString = DEFAULT_DISPLAY;
-        this.dark_sunriseColor = ContextCompat.getColor(context, DEFAULT_DARK_SUNRISE);
-        this.dark_sunsetColor = ContextCompat.getColor(context, DEFAULT_DARK_SUNSET);
-        this.light_sunriseColor = ContextCompat.getColor(context, DEFAULT_LIGHT_SUNRISE);
-        this.light_sunsetColor = ContextCompat.getColor(context, DEFAULT_LIGHT_SUNSET);
+        init(context);
     }
 
     public AppColors( AppColors other )
     {
         this.schemeName = other.name();
-        this.displayString = other.getDisplayString();
         this.dark_sunriseColor = other.getDarkSunriseColor();
         this.dark_sunsetColor = other.getDarkSunsetColor();
         this.light_sunriseColor = other.getLightSunriseColor();
         this.light_sunsetColor = other.getLightSunsetColor();
     }
 
+    public boolean init(Context context)
+    {
+        this.schemeName = DEFAULT_NAME;
+        this.dark_sunriseColor = ContextCompat.getColor(context, DEFAULT_DARK_SUNRISE);
+        this.dark_sunsetColor = ContextCompat.getColor(context, DEFAULT_DARK_SUNSET);
+        this.light_sunriseColor = ContextCompat.getColor(context, DEFAULT_LIGHT_SUNRISE);
+        this.light_sunsetColor = ContextCompat.getColor(context, DEFAULT_LIGHT_SUNSET);
+        return true;
+    }
+
     public String name()
     {
         return schemeName;
-    }
-
-    public String getDisplayString()
-    {
-        return displayString;
     }
 
     public int getDarkSunriseColor()
@@ -116,12 +112,10 @@ public class AppColors
     {
         return loadAppColors(context, appColorsPrefs(context), schemeName);
     }
-    public boolean loadAppColors(Context context, SharedPreferences prefs, String schemeName)
+    public boolean loadAppColors(Context context, SharedPreferences prefs, String name)
     {
-        String prefix = appColorsPrefix(this.schemeName);
-
+        String prefix = appColorsPrefix(name);
         this.schemeName = prefs.getString(prefix + APPCOLORS_NAME, DEFAULT_NAME);
-        this.displayString = prefs.getString(prefix + APPCOLORS_DISPLAY, DEFAULT_DISPLAY);
         this.dark_sunriseColor = prefs.getInt(prefix + APPCOLORS_DARK_SUNRISE, ContextCompat.getColor(context, DEFAULT_DARK_SUNRISE));
         this.dark_sunsetColor = prefs.getInt(prefix + APPCOLORS_DARK_SUNSET, ContextCompat.getColor(context, DEFAULT_DARK_SUNSET));
         this.light_sunriseColor = prefs.getInt(prefix + APPCOLORS_LIGHT_SUNRISE, ContextCompat.getColor(context, DEFAULT_LIGHT_SUNRISE));
@@ -139,7 +133,6 @@ public class AppColors
         String prefix = appColorsPrefix(this.schemeName);
 
         editor.putString(prefix + APPCOLORS_NAME, this.schemeName);
-        editor.putString(prefix + APPCOLORS_DISPLAY, this.displayString);
         editor.putInt(prefix + APPCOLORS_DARK_SUNRISE, this.dark_sunriseColor);
         editor.putInt(prefix + APPCOLORS_DARK_SUNSET, this.dark_sunsetColor);
         editor.putInt(prefix + APPCOLORS_LIGHT_SUNRISE, this.light_sunriseColor);
@@ -158,7 +151,6 @@ public class AppColors
         String prefix = appColorsPrefix(this.schemeName);
 
         editor.remove(prefix + APPCOLORS_NAME);
-        editor.remove(prefix + APPCOLORS_DISPLAY);
         editor.remove(prefix + APPCOLORS_DARK_SUNRISE);
         editor.remove(prefix + APPCOLORS_DARK_SUNSET);
         editor.remove(prefix + APPCOLORS_LIGHT_SUNRISE);
