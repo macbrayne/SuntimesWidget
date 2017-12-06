@@ -42,6 +42,7 @@
         <item name="icActionSettings">@drawable/ic_action_settings_light</item>
         <item name="icActionHelp">@drawable/ic_action_help_light</item>
         <item name="icActionAccept">@drawable/ic_action_accept_light</item>
+        <item name="icActionCancel">@drawable/ic_action_cancel_light</item>
         <item name="icActionNew">@drawable/ic_action_new_light</item>
         <item name="icActionSave">@drawable/ic_action_save_light</item>
         <item name="icActionEdit">@drawable/ic_action_edit_light</item>
@@ -93,6 +94,7 @@
         <item name="icActionSettings">@drawable/ic_action_settings</item>
         <item name="icActionHelp">@drawable/ic_action_help</item>
         <item name="icActionAccept">@drawable/ic_action_accept</item>
+        <item name="icActionCancel">@drawable/ic_action_cancel</item>
         <item name="icActionNew">@drawable/ic_action_new</item>
         <item name="icActionSave">@drawable/ic_action_save</item>
         <item name="icActionEdit">@drawable/ic_action_edit</item>
