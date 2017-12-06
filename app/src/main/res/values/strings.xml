@@ -330,6 +330,8 @@
     <string name="configLabel_themeName">Display:</string>               <!-- edit label -->
     <string name="configHint_themeName">Label</string>                   <!-- edit hint -->
 
+    <string name="addcolors_custname">colors<xliff:g id="#">%1$s</xliff:g></string>  <!-- suggested new color scheme id -->
+
     <!--
          APP SETTINGS
     -->
