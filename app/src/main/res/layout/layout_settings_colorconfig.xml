@@ -43,6 +43,14 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <ImageButton
+                android:id="@+id/cancelButton" android:src="?attr/icActionCancel"
+                android:background="@null" android:padding="4dp" android:visibility="gone"
+                android:layout_marginStart="0dp" android:layout_marginLeft="0dp"
+                android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
+                android:layout_marginTop="4dp" android:layout_marginBottom="4dp"
+                android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+            <ImageButton
                 android:id="@+id/addButton" android:src="?attr/icActionNew"
                 android:background="@null" android:padding="4dp"
                 android:layout_marginStart="0dp" android:layout_marginLeft="0dp"
@@ -53,6 +61,7 @@
             <TextView
                 android:id="@+id/label_scheme"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:focusable="true" android:focusableInTouchMode="true"
                 android:text="Scheme:" />
 
             <ViewFlipper
@@ -90,6 +99,14 @@
                 android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
             <ImageButton
+                android:id="@+id/saveButton" android:src="?attr/icActionSave"
+                android:background="@null" android:padding="4dp" android:visibility="gone"
+                android:layout_marginStart="4dp" android:layout_marginLeft="4dp"
+                android:layout_marginEnd="4dp" android:layout_marginRight="4dp"
+                android:layout_marginTop="4dp" android:layout_marginBottom="4dp"
+                android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+            <ImageButton
                 android:id="@+id/deleteButton" android:src="?attr/icActionDelete"
                 android:background="@null" android:padding="4dp"
                 android:layout_marginTop="4dp" android:layout_marginBottom="4dp"
@@ -100,7 +117,7 @@
         <!-- dark / light tabs -->
         <RadioGroup
             android:id="@+id/tabs"
-            app:layout_constraintTop_toBottomOf="@+id/layout_buttons"
+            app:layout_constraintTop_toBottomOf="@+id/layout_scheme"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_width="0dp" android:layout_height="wrap_content"
