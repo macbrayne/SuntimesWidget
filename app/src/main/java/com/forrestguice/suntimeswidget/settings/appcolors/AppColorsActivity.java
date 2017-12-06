@@ -31,6 +31,8 @@ import com.forrestguice.suntimeswidget.settings.AppSettings;
 public class AppColorsActivity extends AppCompatActivity
 {
     public static final String KEY_THEMEID = "themeID";
+    public static final String KEY_SELECTED = "selected";
+    public static final String KEY_MODE = "colorsmode";
 
     private AppColorsView appColors;
     private int appTheme;
@@ -58,6 +60,12 @@ public class AppColorsActivity extends AppCompatActivity
         initLocale(this);
         setContentView(R.layout.layout_activity_colorconfig);
         initViews(this);
+
+        if (extras != null)
+        {
+            appColors.setSelectedAppColors(extras.getString(KEY_SELECTED, AppColors.DEFAULT_NAME));
+            appColors.setMode(appColors.getViewModeString(extras.getString(KEY_MODE, AppColorsView.AppColorsViewMode.MODE_CUSTOM_SELECT.name())));
+        }
     }
 
     private void initLocale(Context context)
@@ -131,6 +139,8 @@ public class AppColorsActivity extends AppCompatActivity
         Intent intent = new Intent(AppColorsActivity.this, AppColorsActivity.class);
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_THEMEID, themeID);
+        bundle.putString(KEY_SELECTED, appColors.selectedAppColors());
+        bundle.putString(KEY_MODE, appColors.getMode().name());
         intent.putExtras(bundle);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         AppColorsActivity.this.finish();

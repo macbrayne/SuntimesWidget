@@ -27,7 +27,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -36,6 +38,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.forrestguice.suntimeswidget.R;
@@ -47,14 +50,16 @@ import java.util.ArrayList;
 public class AppColorsView extends LinearLayout
 {
     public static final String KEY_DIALOGMODE = "dialogmode";
+    //public static final String KEY_SELECTED = "selected";
     public static final String KEY_MODIFIED = "modified";
     public static final String KEY_SUNRISECOLOR = "sunrisecolor";
     public static final String KEY_SUNSETCOLOR = "sunsetcolor";
 
     private ViewFlipper flipScheme;
     private EditText editScheme;
+    private TextView labelScheme;
     private Spinner spinScheme;
-    private ImageButton btnAddScheme, btnEditScheme, btnDeleteScheme;
+    private ImageButton btnAddScheme, btnEditScheme, btnDeleteScheme, btnSaveScheme, btnCancel;
 
     private RadioGroup selectTheme;
 
@@ -84,7 +89,6 @@ public class AppColorsView extends LinearLayout
         initViews(context);
 
         loadSettings(context);
-        setMode(mode);
         isInitialized = true;
     }
 
@@ -97,8 +101,8 @@ public class AppColorsView extends LinearLayout
     protected void initViews( Context context )
     {
         spinScheme = (Spinner)findViewById(R.id.spin_scheme_name);
-        spinScheme.setAdapter(AppColors.createAppColorsAdapter(context));
         spinScheme.setOnItemSelectedListener(selectedSchemeChanged);
+        initSchemeAdapter(context);
 
         btnAddScheme = (ImageButton)findViewById(R.id.addButton);
         btnAddScheme.setOnClickListener(addSchemeClick);
@@ -109,7 +113,15 @@ public class AppColorsView extends LinearLayout
         btnDeleteScheme = (ImageButton)findViewById(R.id.deleteButton);
         btnDeleteScheme.setOnClickListener(deleteSchemeClick);
 
+        btnSaveScheme = (ImageButton)findViewById(R.id.saveButton);
+        btnSaveScheme.setOnClickListener(saveSchemeClick);
+
+        btnCancel = (ImageButton)findViewById(R.id.cancelButton);
+        btnCancel.setOnClickListener(cancelClick);
+
         flipScheme = (ViewFlipper)findViewById(R.id.flip_scheme);
+
+        labelScheme = (TextView)findViewById(R.id.label_scheme);
         editScheme = (EditText)findViewById(R.id.edit_scheme_name);
 
         selectTheme = (RadioGroup)findViewById(R.id.tabs);
@@ -129,13 +141,20 @@ public class AppColorsView extends LinearLayout
         colorsChoosers.add(sunsetColor);
     }
 
+    protected ArrayAdapter<String> initSchemeAdapter(Context context)
+    {
+        ArrayAdapter<String> adapter = AppColors.createAppColorsAdapter(context);
+        spinScheme.setAdapter(adapter);
+        return adapter;
+    }
+
     private AdapterView.OnItemSelectedListener selectedSchemeChanged = new AdapterView.OnItemSelectedListener()
     {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
         {
             selectedScheme = parent.getItemAtPosition(position).toString();
-            Log.d("DEBUG", "scheme selected: " + selectedScheme);
+            loadSettings(getContext());
         }
 
         @Override
@@ -147,7 +166,7 @@ public class AppColorsView extends LinearLayout
         @Override
         public void onClick(View v)
         {
-            // TODO
+            setMode(AppColorsViewMode.MODE_CUSTOM_ADD);
         }
     };
 
@@ -156,9 +175,63 @@ public class AppColorsView extends LinearLayout
         @Override
         public void onClick(View v)
         {
-            // TODO
+            setMode(AppColorsViewMode.MODE_CUSTOM_EDIT);
         }
     };
+
+    private View.OnClickListener cancelClick = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            loadSettings(getContext());
+            setMode(AppColorsViewMode.MODE_CUSTOM_SELECT);
+        }
+    };
+
+    private View.OnClickListener saveSchemeClick = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            Context context = getContext();
+            if (saveScheme(context))
+            {
+                isModified = false;
+                ArrayAdapter<String> adapter = initSchemeAdapter(context);
+                int p = ordinal(adapter, editScheme.getText().toString());
+                if (p >= 0)
+                {
+                    spinScheme.setSelection(p);
+                }
+                setMode(AppColorsViewMode.MODE_CUSTOM_SELECT);
+            }
+        }
+    };
+
+    protected boolean saveScheme(Context context)
+    {
+        if (validateInput())
+        {
+            AppColors colors = new AppColors(context);
+            colors.loadAppColors(context, editScheme.getText().toString());
+
+            colors.schemeName = editScheme.getText().toString();
+            if (appTheme == R.style.AppTheme_Light)
+            {
+                colors.light_sunriseColor = sunriseColor.getColor();
+                colors.light_sunsetColor = sunsetColor.getColor();
+            } else
+            {
+                colors.dark_sunriseColor = sunriseColor.getColor();
+                colors.dark_sunsetColor = sunsetColor.getColor();
+            }
+
+            colors.saveAppColors(context);
+            return true;
+        }
+        return false;
+    }
 
     private View.OnClickListener deleteSchemeClick = new View.OnClickListener()
     {
@@ -175,7 +248,16 @@ public class AppColorsView extends LinearLayout
                         {
                             public void onClick(DialogInterface dialog, int which)
                             {
-                                // TODO: delete
+                                Context context = getContext();
+                                AppColors colors = new AppColors(context);
+                                colors.loadAppColors(context, selectedScheme);
+                                colors.deleteAppColors(context);
+                                Toast.makeText(context, selectedScheme + " was deleted.", Toast.LENGTH_LONG).show();  // TODO
+
+                                selectedScheme = AppColors.DEFAULT_NAME;
+                                initSchemeAdapter(context);
+                                mode = AppColorsViewMode.MODE_CUSTOM_SELECT;
+                                loadSettings(context);
                                 dialog.dismiss();
                             }
                         });
@@ -289,13 +371,7 @@ public class AppColorsView extends LinearLayout
             return;
 
         selectedColors = new AppColors(context);
-        boolean isDefault = selectedScheme.equals(AppColors.DEFAULT_NAME);
-        if (!isDefault)
-        {
-            selectedColors.loadAppColors(context, selectedScheme);
-        }
-        btnDeleteScheme.setEnabled(!isDefault);
-        btnEditScheme.setEnabled(!isDefault);
+        selectedColors.loadAppColors(context, selectedScheme);
 
         if (appTheme == R.style.AppTheme_Light)
         {
@@ -307,6 +383,7 @@ public class AppColorsView extends LinearLayout
             sunsetColor.setColor(selectedColors.getDarkSunsetColor());
         }
         updateViews(context);
+        setMode(mode);
     }
 
     /**
@@ -318,19 +395,25 @@ public class AppColorsView extends LinearLayout
         String viewModeString = bundle.getString(KEY_DIALOGMODE);
         if (viewModeString != null)
         {
-            AppColorsViewMode viewMode;
-            try {
-                viewMode = AppColorsViewMode.valueOf(viewModeString);
-            } catch (IllegalArgumentException e) {
-                Log.w("DEBUG", "Bundle contained bad viewModeString! " + e.toString());
-                viewMode = AppColorsViewMode.MODE_CUSTOM_SELECT;
-            }
-            setMode(viewMode);
+            setMode(getViewModeString(viewModeString));
         }
+        //spinScheme.setSelection(bundle.getInt(KEY_SELECTED, 0));
         sunriseColor.setColor(bundle.getInt(KEY_SUNRISECOLOR, sunriseColor.getColor()));
         sunsetColor.setColor(bundle.getInt(KEY_SUNSETCOLOR, sunsetColor.getColor()));
         isModified = bundle.getBoolean(KEY_MODIFIED, false);
         updateViews(getContext());
+    }
+
+    public AppColorsViewMode getViewModeString(String viewModeString)
+    {
+        AppColorsViewMode viewMode;
+        try {
+            viewMode = AppColorsViewMode.valueOf(viewModeString);
+        } catch (IllegalArgumentException e) {
+            Log.w("DEBUG", "Bundle contained bad viewModeString! " + e.toString());
+            viewMode = AppColorsViewMode.MODE_CUSTOM_SELECT;
+        }
+        return viewMode;
     }
 
     /**
@@ -340,6 +423,7 @@ public class AppColorsView extends LinearLayout
     protected boolean saveSettings(Bundle bundle)
     {
         bundle.putString(KEY_DIALOGMODE, mode.name());
+        //bundle.putInt(KEY_SELECTED, spinScheme.getSelectedItemPosition());
         bundle.putInt(KEY_SUNRISECOLOR, sunriseColor.getColor());
         bundle.putInt(KEY_SUNSETCOLOR, sunsetColor.getColor());
         bundle.putBoolean(KEY_MODIFIED, isModified);
@@ -358,8 +442,17 @@ public class AppColorsView extends LinearLayout
      */
     public boolean validateInput()
     {
-        boolean isValid = false;  // TODO
-        editScheme.setError("TODO: validateInput");
+        boolean isValid = true;
+        if (mode == AppColorsViewMode.MODE_CUSTOM_ADD)
+        {
+            Adapter adapter = spinScheme.getAdapter();
+            boolean notUnique = (ordinal(adapter, editScheme.getText().toString()) >= 0);
+            if (notUnique)
+            {
+                editScheme.setError("Name must be unique.");
+                isValid = false;
+            }
+        }
         return isValid;
     }
 
@@ -393,6 +486,21 @@ public class AppColorsView extends LinearLayout
     public String selectedAppColors()
     {
         return selectedScheme;
+    }
+    public void setSelectedAppColors( String schemeName )
+    {
+        selectedScheme = schemeName;
+        int p = ordinal(spinScheme.getAdapter(), selectedScheme);
+        if (p >= 0)
+        {
+            spinScheme.setSelection(p);
+        }
+        loadSettings(getContext());
+    }
+
+    protected boolean isDefault()
+    {
+        return AppColors.DEFAULT_NAME.equals(selectedScheme);
     }
 
     /** Property: appTheme */
@@ -479,34 +587,98 @@ public class AppColorsView extends LinearLayout
         switch (mode)
         {
             case MODE_CUSTOM_ADD:
-            case MODE_CUSTOM_EDIT:
-                editScheme.setEnabled(true);
-                spinScheme.setEnabled(false);
-                flipScheme.setDisplayedChild(1);
-                for (ColorChooser chooser : colorsChoosers)
-                {
-                    chooser.setEnabled(true);
-                }
+                hideButton(btnAddScheme);
+                hideButton(btnEditScheme);
+                hideButton(btnDeleteScheme);
+                showButton(btnSaveScheme);
+                showButton(btnCancel);
                 setEditorEnabled(true);
+                editScheme.setText(suggestSchemeName());
+                editScheme.requestFocus();
+                break;
+
+            case MODE_CUSTOM_EDIT:
+                hideButton(btnAddScheme);
+                hideButton(btnEditScheme);
+                showButton(btnDeleteScheme, !isDefault());
+                showButton(btnSaveScheme);
+                showButton(btnCancel);
+                setEditorEnabled(true);
+                editScheme.setText(selectedColors.name());
+                editScheme.setEnabled(false);
+                btnSaveScheme.requestFocus();
                 break;
 
             case MODE_CUSTOM_SELECT:
             default:
-                editScheme.setEnabled(false);
-                spinScheme.setEnabled(true);
-                flipScheme.setDisplayedChild(0);
-                for (ColorChooser chooser : colorsChoosers)
-                {
-                    chooser.setEnabled(false);
-                }
+                showButton(btnAddScheme);
+                showButton(btnEditScheme, !isDefault());
+                hideButton(btnDeleteScheme);
+                hideButton(btnSaveScheme);
+                hideButton(btnCancel);
                 setEditorEnabled(false);
+                labelScheme.requestFocus();
                 break;
         }
     }
 
+    private void hideButton( ImageButton button )
+    {
+        button.setEnabled(false);
+        button.setVisibility(View.GONE);
+    }
+
+    private void showButton( ImageButton button )
+    {
+        button.setEnabled(true);
+        button.setVisibility(View.VISIBLE);
+    }
+
+    private void showButton( ImageButton button, boolean show )
+    {
+        if (show)
+            showButton(button);
+        else hideButton(button);
+    }
+
     protected void setEditorEnabled( boolean enabled )
     {
+        editScheme.setEnabled(enabled);
+        editScheme.setError(null);
+        spinScheme.setEnabled(!enabled);
+        flipScheme.setDisplayedChild(enabled ? 1 : 0);
 
+        for (ColorChooser chooser : colorsChoosers)
+        {
+            chooser.setEnabled(enabled);
+        }
+    }
+
+    protected String suggestSchemeName()
+    {
+        int i = 1;
+        String generatedName;
+        Context context = getContext();
+        Adapter adapter = spinScheme.getAdapter();
+        do {
+            generatedName = context.getString(R.string.addcolors_custname, i+"");
+            i++;
+        } while (ordinal(adapter, generatedName) >= 0);
+        return generatedName;
+    }
+
+    protected int ordinal(Adapter adapter, String value)
+    {
+        int n = adapter.getCount();
+        for (int i=0; i<n; i++)
+        {
+            String item = adapter.getItem(i).toString();
+            if (item.equals(value))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
