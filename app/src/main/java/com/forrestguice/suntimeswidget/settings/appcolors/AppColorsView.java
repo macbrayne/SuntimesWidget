@@ -50,7 +50,7 @@ import java.util.ArrayList;
 public class AppColorsView extends LinearLayout
 {
     public static final String KEY_DIALOGMODE = "dialogmode";
-    //public static final String KEY_SELECTED = "selected";
+    public static final String KEY_SELECTED = "selected";
     public static final String KEY_MODIFIED = "modified";
     public static final String KEY_SUNRISECOLOR = "sunrisecolor";
     public static final String KEY_SUNSETCOLOR = "sunsetcolor";
@@ -101,7 +101,6 @@ public class AppColorsView extends LinearLayout
     protected void initViews( Context context )
     {
         spinScheme = (Spinner)findViewById(R.id.spin_scheme_name);
-        spinScheme.setOnItemSelectedListener(selectedSchemeChanged);
         initSchemeAdapter(context);
 
         btnAddScheme = (ImageButton)findViewById(R.id.addButton);
@@ -154,6 +153,7 @@ public class AppColorsView extends LinearLayout
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
         {
             selectedScheme = parent.getItemAtPosition(position).toString();
+            Log.d("DEBUG", "selectedSchemeChanged :: " + selectedScheme + " (" + position + ")");
             loadSettings(getContext());
         }
 
@@ -197,7 +197,6 @@ public class AppColorsView extends LinearLayout
             Context context = getContext();
             if (saveScheme(context))
             {
-                isModified = false;
                 ArrayAdapter<String> adapter = initSchemeAdapter(context);
                 int p = ordinal(adapter, editScheme.getText().toString());
                 if (p >= 0)
@@ -221,13 +220,13 @@ public class AppColorsView extends LinearLayout
             {
                 colors.light_sunriseColor = sunriseColor.getColor();
                 colors.light_sunsetColor = sunsetColor.getColor();
-            } else
-            {
+            } else {
                 colors.dark_sunriseColor = sunriseColor.getColor();
                 colors.dark_sunsetColor = sunsetColor.getColor();
             }
 
             colors.saveAppColors(context);
+            isModified = false;
             return true;
         }
         return false;
@@ -290,9 +289,14 @@ public class AppColorsView extends LinearLayout
                             public void onClick(DialogInterface dialog, int which)
                             {
                                 dialog.dismiss();
-                                // TODO: save
-                                setThemeTab(checkedId);
-                                signalSelectedThemeChanged(checkedId);
+                                boolean saved = saveScheme(getContext());
+                                if (saved)
+                                {
+                                    mode = AppColorsViewMode.MODE_CUSTOM_EDIT;
+                                    selectedScheme = editScheme.getText().toString();
+                                    setThemeTab(checkedId);
+                                    signalSelectedThemeChanged(checkedId);
+                                }
                             }
                         });
                 alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Discard",       // TODO: i18n
@@ -382,6 +386,8 @@ public class AppColorsView extends LinearLayout
             sunriseColor.setColor(selectedColors.getDarkSunriseColor());
             sunsetColor.setColor(selectedColors.getDarkSunsetColor());
         }
+
+        isModified = false;
         updateViews(context);
         setMode(mode);
     }
@@ -397,11 +403,32 @@ public class AppColorsView extends LinearLayout
         {
             setMode(getViewModeString(viewModeString));
         }
-        //spinScheme.setSelection(bundle.getInt(KEY_SELECTED, 0));
+
+        /**String schemeName = bundle.getString(KEY_SELECTED, "");
+        int i = findScheme(spinScheme, schemeName);
+        if (i >= 0 && i < spinScheme.getCount()) {
+            spinScheme.setSelection(i);
+        }*/
+
         sunriseColor.setColor(bundle.getInt(KEY_SUNRISECOLOR, sunriseColor.getColor()));
         sunsetColor.setColor(bundle.getInt(KEY_SUNSETCOLOR, sunsetColor.getColor()));
         isModified = bundle.getBoolean(KEY_MODIFIED, false);
+
+        Log.d("DEBUG", "AppColorsView.loadSettings(context,bundle) :: " + isModified);
         updateViews(getContext());
+    }
+
+    private int findScheme(Spinner spinner, String schemeName)
+    {
+        for (int i=0; i<spinner.getCount(); i++)
+        {
+            Object item = spinner.getItemAtPosition(i);
+            if (item.toString().equals(schemeName))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public AppColorsViewMode getViewModeString(String viewModeString)
@@ -423,7 +450,7 @@ public class AppColorsView extends LinearLayout
     protected boolean saveSettings(Bundle bundle)
     {
         bundle.putString(KEY_DIALOGMODE, mode.name());
-        //bundle.putInt(KEY_SELECTED, spinScheme.getSelectedItemPosition());
+        bundle.putString(KEY_SELECTED, spinScheme.getSelectedItem().toString());
         bundle.putInt(KEY_SUNRISECOLOR, sunriseColor.getColor());
         bundle.putInt(KEY_SUNSETCOLOR, sunsetColor.getColor());
         bundle.putBoolean(KEY_MODIFIED, isModified);
@@ -587,23 +614,27 @@ public class AppColorsView extends LinearLayout
         switch (mode)
         {
             case MODE_CUSTOM_ADD:
+                spinScheme.setOnItemSelectedListener(null);
                 hideButton(btnAddScheme);
                 hideButton(btnEditScheme);
                 hideButton(btnDeleteScheme);
                 showButton(btnSaveScheme);
                 showButton(btnCancel);
                 setEditorEnabled(true);
+                editScheme.setError(null);
                 editScheme.setText(suggestSchemeName());
                 editScheme.requestFocus();
                 break;
 
             case MODE_CUSTOM_EDIT:
+                spinScheme.setOnItemSelectedListener(null);
                 hideButton(btnAddScheme);
                 hideButton(btnEditScheme);
                 showButton(btnDeleteScheme, !isDefault());
                 showButton(btnSaveScheme);
                 showButton(btnCancel);
                 setEditorEnabled(true);
+                editScheme.setError(null);
                 editScheme.setText(selectedColors.name());
                 editScheme.setEnabled(false);
                 btnSaveScheme.requestFocus();
@@ -618,6 +649,7 @@ public class AppColorsView extends LinearLayout
                 hideButton(btnCancel);
                 setEditorEnabled(false);
                 labelScheme.requestFocus();
+                spinScheme.setOnItemSelectedListener(selectedSchemeChanged);
                 break;
         }
     }
