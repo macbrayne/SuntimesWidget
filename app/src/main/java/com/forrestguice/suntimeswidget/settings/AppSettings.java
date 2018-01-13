@@ -28,12 +28,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.forrestguice.suntimeswidget.R;
-<<<<<<< HEAD
-import com.forrestguice.suntimeswidget.calculator.SuntimesRiseSetDataset;
-import com.forrestguice.suntimeswidget.settings.appcolors.AppColors;
-=======
 import com.forrestguice.suntimeswidget.calculator.SuntimesRiseSetData;
->>>>>>> master
+import com.forrestguice.suntimeswidget.settings.appcolors.AppColors;
 
 import java.util.Locale;
 
