@@ -67,6 +67,10 @@
     <string name="length_day"><xliff:g id="timeSpan" example="12h">%1$s</xliff:g> dnia</string>         <!-- time between sunrise and sunset; "12 hr in the day"  -->
     <string name="length_light"><xliff:g id="timeSpan" example="12h 50m">%1$s</xliff:g> użytecznego światła</string>  <!-- time between civil twilights; 12 hr 50m of usable light -->
 
+    <!-- Field: moon illumination (as seen in moon widget) -->
+    <string name="moon_illumination"><xliff:g id="illuminationPercent" example="50%">%1$s</xliff:g> illuminated</string>  <!-- "50% illuminated" .. used in 2x1 widget --> <!-- TODO -->
+    <string name="moon_illumination_short"><xliff:g id="illuminationPercent" example="50%">%1$s</xliff:g></string>  <!-- "50%" .. used in 1x1 widget -->
+
     <!-- Field: today/tomorrow time delta (as seen in 1x3_0 widget layout).
          e.g. 'Tomorrow will be' + ' 2m ' + 'shorter'
          The relative order is defined by the layout (layout/info_time_daydelta.xml).
@@ -99,10 +103,10 @@
     <string name="untilEnd_civilTwilight">zmierzchu cywilnego</string>
     <string name="untilEnd_nauticalTwilight">zmierzchu żeglarskiego</string>
     <string name="untilEnd_astroTwilight">zmierzchu astronomicznego</string>
-    <string name="until_goldhour">golden hour</string> <!-- TODO -->
-    <string name="untilEnd_goldhour">golden hour</string> <!-- TODO -->
-    <string name="until_bluehour">blue hour</string> <!-- TODO -->
-    <string name="untilEnd_bluehour">blue hour</string> <!-- TODO -->
+    <string name="until_goldhour">złota godzina</string>
+    <string name="untilEnd_goldhour">złota godzina</string>
+    <string name="until_bluehour">błękitna godzina</string>
+    <string name="untilEnd_bluehour">błękitna godzina</string>
 
     <!-- Table -->
     <string name="sunrise">Wschód Słońca</string>                             <!-- contentDescription -->
@@ -144,8 +148,8 @@
     <string name="configLabel_general_calculator">Źródło danych:</string>         <!-- spinner label -->
     <string name="configLabel_general_showSeconds">Wyświetl sekundy</string>        <!-- checkbox label -->
 
-    <string name="configLabel_general_showWeeks">Show Weeks</string>        <!-- checkbox label -->  <!-- TODO -->
-    <string name="configLabel_general_showWeeks_summary">Divide time spans greater than 7 days into weeks (e.g. 15d becomes 2w 1d).</string>        <!-- checkbox label -->  <!-- TODO -->
+    <string name="configLabel_general_showWeeks">Wyświetl tygodnie</string>        <!-- checkbox label -->
+    <string name="configLabel_general_showWeeks_summary">Dziel przedziały czasu dłuższe niż 7 dni na tygodnie (np. 15d będzie 2tyg 1d).</string>        <!-- checkbox label -->
 
     <!-- Widget Setting: appearance -->
     <string name="configLabel_appearance">Ustawienia wyglądu</string>           <!-- group title -->
@@ -168,12 +172,12 @@
     <string name="timeMode_astronomical">Astronomiczny świt/zmierzch</string> <!-- setting -->
     <string name="timeMode_night">Noc</string>                   <!-- a label (not an actual timeMode setting) -->
     <string name="timeMode_day">Dzień</string>                   <!-- a label (not an actual timeMode setting) -->
-    <string name="timeMode_golden_short">Golden</string>                <!-- setting --> <!-- TODO -->
-    <string name="timeMode_golden">Golden Hour</string>                 <!-- setting --> <!-- TODO -->
-    <string name="timeMode_blue8_short">Blue (8\u00B0)</string>                    <!-- setting --> <!-- TODO -->
-    <string name="timeMode_blue8">Blue Hour (8\u00B0)</string>                     <!-- setting --> <!-- TODO -->
-    <string name="timeMode_blue4_short">Blue (4\u00B0)</string>                    <!-- setting --> <!-- TODO -->
-    <string name="timeMode_blue4">Blue Hour (4\u00B0)</string>                     <!-- setting --> <!-- TODO -->
+    <string name="timeMode_golden_short">Złota</string>                <!-- setting -->
+    <string name="timeMode_golden">Złota godzina</string>                 <!-- setting -->
+    <string name="timeMode_blue8_short">Błękitna (8\u00B0)</string>                    <!-- setting -->
+    <string name="timeMode_blue8">Błękitna godzina (8\u00B0)</string>                     <!-- setting -->
+    <string name="timeMode_blue4_short">Błękitna (4\u00B0)</string>                    <!-- setting -->
+    <string name="timeMode_blue4">Błękitna godzina (4\u00B0)</string>                     <!-- setting -->
 
     <string name="timeMode_equinox_vernal">Równonoc wiosenna</string>      <!-- setting -->
     <string name="timeMode_equinox_vernal_short">Równonoc</string>       <!-- setting -->
@@ -184,6 +188,23 @@
     <string name="timeMode_solstice_winter">Zimowe przesilenie</string>    <!-- setting -->
     <string name="timeMode_solstice_winter_short">Przesilenie</string>     <!-- setting -->
 
+    <string name="timeMode_moon_new">New Moon</string>                               <!-- setting -->  <!-- TODO -->
+    <string name="timeMode_moon_new_short">New</string>                              <!-- setting -->  <!-- TODO -->
+    <string name="timeMode_moon_waxingcrescent_short">Waxing Crescent</string>               <!-- label -->  <!-- TODO -->
+    <string name="timeMode_moon_waxingcrescent">Waxing Crescent</string>                     <!-- label -->  <!-- TODO -->
+    <string name="timeMode_moon_firstquarter">First Quarter</string>                 <!-- setting -->  <!-- TODO -->
+    <string name="timeMode_moon_firstquarter_short">First Quarter</string>           <!-- setting -->  <!-- TODO -->
+    <string name="timeMode_moon_waxinggibbous_short">Waxing Gibbous</string>               <!-- label -->  <!-- TODO -->
+    <string name="timeMode_moon_waxinggibbous">Waxing Gibbous</string>                     <!-- label -->  <!-- TODO -->
+    <string name="timeMode_moon_full">Full Moon</string>                             <!-- setting -->  <!-- TODO -->
+    <string name="timeMode_moon_full_short">Full</string>                            <!-- setting -->  <!-- TODO -->
+    <string name="timeMode_moon_waninggibbous_short">Waning Gibbous</string>               <!-- label -->  <!-- TODO -->
+    <string name="timeMode_moon_waninggibbous">Waning Gibbous</string>                     <!-- label -->  <!-- TODO -->
+    <string name="timeMode_moon_thirdquarter">Third Quarter</string>                 <!-- setting -->  <!-- TODO -->
+    <string name="timeMode_moon_thirdquarter_short">Third Quarter</string>           <!-- setting -->  <!-- TODO -->
+    <string name="timeMode_moon_waningcrescent_short">Waning Crescent</string>               <!-- label -->  <!-- TODO -->
+    <string name="timeMode_moon_waningcrescent">Waning Crescent</string>                     <!-- label -->  <!-- TODO -->
+
     <string name="configLabel_general_timeMode">Tryb:</string>          <!-- spinner label -->
 
     <!-- Widget Setting: layout mode -->
@@ -191,6 +212,12 @@
     <string name="widgetMode1x1_sunset">Tylko zachód</string>               <!-- setting -->
     <string name="widgetMode1x1_both_1">Wschód i zachód (1)</string>  <!-- setting -->
     <string name="widgetMode1x1_both_2">Wschód i zachód (2)</string>  <!-- setting -->
+
+    <string name="widgetMode1x1_moonriseset">Moonrise &amp; moonset</string>     <!-- setting -->   <!-- TODO -->
+    <string name="widgetMode1x1_moonphaseillum">Moon phase &amp; illumination</string>     <!-- setting -->  <!-- TODO -->
+    <string name="widgetMode1x1_moonphase">Moon phase only</string>     <!-- setting -->  <!-- TODO -->
+    <string name="widgetMode1x1_moonillum">Moon illumination only</string>     <!-- setting -->  <!-- TODO -->
+    <string name="widgetMode1x1_moonphasenext">Next major phase</string>     <!-- setting -->  <!-- TODO -->
 
     <string name="configLabel_appearance_1x1mode">Wymiar 1x1:</string>     <!-- spinner label -->
 
@@ -385,8 +412,8 @@
     <string name="configLabel_places">Miejsca</string>                           <!-- group title -->
     <string name="configLabel_places_export">Eksportuj miejsca</string>
     <string name="configLabel_places_clear">Czyść miejsca</string>
-    <string name="configLabel_places_build">Add World Places</string>  <!-- TODO -->
-    <string name="configLabel_places_build_summary">Scan locales and add cities to the database.</string>   <!-- TODO -->
+    <string name="configLabel_places_build">Dodaj światowe miejsca</string>
+    <string name="configLabel_places_build_summary">Przeskanuj miejsca i dodaj miasta do bazy danych.</string>
 
     <!-- App Setting: UI -->
     <string name="configLabel_ui">Interfejs użytkownika</string>                       <!-- group title -->
@@ -417,12 +444,12 @@
     <string name="configLabel_ui_showdatasource_summary">Pokaż etykietę wyświetlającą obecną konfigurację.</string>
 
     <!-- App Setting: show golden hour -->
-    <string name="configLabel_ui_showgoldhour">Show Golden Hour</string>                <!-- TODO -->
-    <string name="configLabel_ui_showgoldhour_summary">Show golden hour times.</string> <!-- TODO -->
+    <string name="configLabel_ui_showgoldhour">Wyświetl złotą godzinę</string>
+    <string name="configLabel_ui_showgoldhour_summary">Wyświetl okres złotej godziny.</string>
 
     <!-- App Setting: show blue hour -->
-    <string name="configLabel_ui_showbluehour">Show Blue Hour</string>                  <!-- TODO -->
-    <string name="configLabel_ui_showbluehour_summary">Show blue hour times.</string>   <!-- TODO -->
+    <string name="configLabel_ui_showbluehour">Wyświetl błękitną godzinę</string>
+    <string name="configLabel_ui_showbluehour_summary">Wyświetl okres błękitnej godziny.</string>
 
     <!-- App Setting: UI Theme -->
     <string-array name="appThemes_display"> <!-- display values (one-to-one with appThemes_values) -->
@@ -529,34 +556,34 @@
     <string-array name="solarevents_short">  <!-- one-to-one with solarevents_long -->
         <item>świt astronomiczny</item>
         <item>świt żeglarski</item>
-        <item>blue hour</item>   <!-- TODO -->
+        <item>błękitna godzina</item>
         <item>świt cywilny</item>
-        <item>blue hour</item>   <!-- TODO -->
+        <item>błękitna godzina</item>
         <item>wschód</item>
-        <item>golden hour</item>  <!-- TODO -->
+        <item>złota godzina</item>
         <item>górowanie</item>
-        <item>golden hour</item>  <!-- TODO -->
+        <item>złota godzina</item>
         <item>zachód</item>
-        <item>blue hour</item>   <!-- TODO -->
+        <item>błękitna godzina</item>
         <item>zmierzch cywilny</item>
-        <item>blue hour</item>   <!-- TODO -->
+        <item>błękitna godzina</item>
         <item>zmierzch żeglarski</item>
         <item>zmierzch astronomiczny</item>
     </string-array>
     <string-array name="solarevents_long">   <!-- one-to-one with solarevents_short -->
         <item>świt astronomiczny</item>
         <item>świt żeglarski</item>
-        <item>morning blue hour (start)</item>  <!-- TODO -->
+        <item>poranna błękitna godzina (początek)</item>
         <item>świt cywilny</item>
-        <item>morning blue hour (end)</item>  <!-- TODO -->
+        <item>poranna błękitna godzina (koniec)</item>
         <item>wschód Słońca</item>
-        <item>morning golden hour (end)</item>  <!-- TODO -->
+        <item>poranna złota godzina (koniec)</item>
         <item>kulminację Słońca</item>
-        <item>evening golden hour (start)</item>  <!-- TODO -->
+        <item>wieczorna złota godzina (początek)</item>
         <item>zachód Słońca</item>
-        <item>evening blue hour (start)</item>  <!-- TODO -->
+        <item>wieczorna błękitna godzina (początek)</item>
         <item>zmierzch cywilny</item>
-        <item>evening blue hour (end)</item>  <!-- TODO -->
+        <item>wieczorna złota godzina (koniec)</item>
         <item>zmierzch żeglarski</item>
         <item>zmierzch astronomiczny</item>
     </string-array>
@@ -610,9 +637,9 @@
     <string name="locationcleared_toast_success">Baza danych miejsc została wyczyszczona.</string>
 
     <!-- Dialog: Build Places List (progress) -->
-    <string name="locationbuild_dialog_title">Building Database</string>  <!-- TODO -->
-    <string name="locationbuild_dialog_message">Building a database of places…</string>  <!-- TODO -->
-    <string name="locationbuild_toast_success">Added <xliff:g id="n">%1$s</xliff:g> places to the database.</string>  <!-- TODO -->
+    <string name="locationbuild_dialog_title">Tworzenie bazy danych</string>
+    <string name="locationbuild_dialog_message">Tworzenie bazy danych miejsc…</string>
+    <string name="locationbuild_toast_success">Dodano <xliff:g id="n">%1$s</xliff:g> miejsc do bazy danych.</string>
 
     <!-- Dialog: Export Places -->
     <string name="locationexport_dialog_title">Eksport miejsc</string>
@@ -635,7 +662,7 @@
     <string name="app_name_widget1">Zmierzchy/Świty Widżet (przełączalny)</string>
     <string name="app_name_widget2">Zmierzchy/Świty Widżet Przesilenie</string>
     <string name="app_version"><![CDATA[<b>Wersja:</b>]]> <xliff:g id="versionString">%s</xliff:g></string>
-    <string name="app_shortdesc">Wyświetla czasy wschodu i zachodu Słońca, oraz świtu i zmierzchu.</string>
+    <string name="app_shortdesc">Wyświetla czasy wschodu i zachodu Słońca, oraz świtu i zmierzchu.</string>  <!-- TODO: needs update to mention the moon. default changed to -> "Displays sunlight and moonlight times" -->
     <string name="app_support_url"><![CDATA[<b>Wsparcie:</b> odwiedź <a href="https://github.com/forrestguice/SuntimesWidget/issues">stronę trackera błędów</a> aby zgłosić błąd/sugestię.]]></string>
     <string name="app_url"><xliff:g id="url"><![CDATA[<a href="https://github.com/forrestguice/SuntimesWidget">github.com/forrestguice/SuntimesWidget</a>]]></xliff:g></string>
     <string name="app_legal1"><![CDATA[Prawo autorskie &#169 2014-2018 Forrest Guice <br />Kod źródłowy dostępny na licencji GPLv3.]]></string>
@@ -654,6 +681,7 @@
     
     <!-- Dialog: Help -->
     <string name="help_dialog_title">Pomoc</string>
+    <!-- TODO: needs update (see values\strings.xml) -->
     <string name="help_appearance_title"><![CDATA[
         Używane są następujące oznaczenia: <br />
                 * <b>%loc</b> jako etykieta <br />
@@ -676,6 +704,12 @@
         <b>Okres użytecznego światła:</b> czas pomiędzy cywilnym świtem i zmierzchem.</br>
     ]]>
     </string>
+    <string name="help_general_goldhour"><![CDATA[
+        <b>Golden Hour:</b> The sun is between 6 degrees above or below the horizon. In the morning the golden hour begins with civil twilight and ends a short time after sunrise. In the evening the golden hour begins a short time before sunset and ends with civil twilight.<br/>
+    ]]></string>  <!-- TODO -->
+    <string name="help_general_bluehour"><![CDATA[
+        <b>Blue Hour:</b> The sun is between 8 degrees and 4 degrees below the horizon. The start and end of the blue hour falls between nautical and civil twilight.<br/>
+    ]]></string>  <!-- TODO -->
     <string name="help_action_launch"><![CDATA[
         W pełni jednoznaczna nazwa klasy Czynności do wywołania.<br/>
     ]]></string>
