@@ -338,6 +338,22 @@ public class WidgetSettingsTest extends SuntimesActivityTestBase
     }
 
     @Test
+    public void test_showLabelsPref()
+    {
+        WidgetSettings.saveShowLabelsPref(context, appWidgetId, false);
+        boolean pref2 = WidgetSettings.loadShowLabelsPref(context, appWidgetId);
+        assertTrue("pref should be false but was " + pref2, !pref2);
+
+        WidgetSettings.saveShowLabelsPref(context, appWidgetId, true);
+        boolean pref1 = WidgetSettings.loadShowLabelsPref(context, appWidgetId);
+        assertTrue("pref should be true but was " + pref1, pref1);
+
+        WidgetSettings.deleteShowLabelsPref(context, appWidgetId);
+        boolean pref0 = WidgetSettings.loadShowLabelsPref(context, appWidgetId);
+        assertTrue("mode should be default (false) but was " + pref0, !pref0 && pref0 == WidgetSettings.PREF_DEF_APPEARANCE_SHOWLABELS);
+    }
+
+    @Test
     public void test_showTitlePref()
     {
         WidgetSettings.saveShowTitlePref(context, appWidgetId, false);
@@ -498,6 +514,23 @@ public class WidgetSettingsTest extends SuntimesActivityTestBase
         showWeeks = WidgetSettings.loadShowWeeksPref(context, appWidgetId);
         assertTrue("showWeeks should be default (false) but was " + showWeeks, !showWeeks && showWeeks == WidgetSettings.PREF_DEF_GENERAL_SHOWWEEKS);
     }
+
+    @Test
+    public void test_showHoursPref()
+    {
+        WidgetSettings.saveShowHoursPref(context, appWidgetId, true);
+        boolean showHours = WidgetSettings.loadShowHoursPref(context, appWidgetId);
+        assertTrue("showHours should be true but was " + showHours, showHours);
+
+        WidgetSettings.saveShowHoursPref(context, appWidgetId, false);
+        showHours = WidgetSettings.loadShowHoursPref(context, appWidgetId);
+        assertTrue("showHours should be false but was " + showHours, !showHours);
+
+        WidgetSettings.deleteShowHoursPref(context, appWidgetId);
+        showHours = WidgetSettings.loadShowHoursPref(context, appWidgetId);
+        assertTrue("showHours should be default (true) but was " + showHours, showHours && showHours == WidgetSettings.PREF_DEF_GENERAL_SHOWHOURS);
+    }
+
 
     @Test
     public void test_showSecondsPref()

@@ -84,6 +84,7 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
     protected CheckBox checkbox_showCompare;
     protected CheckBox checkbox_showSeconds;
     protected CheckBox checkbox_showWeeks;
+    protected CheckBox checkbox_showHours;
 
     protected Spinner spinner_onTap;
     protected EditText text_launchActivity;
@@ -97,6 +98,7 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
     protected CheckBox checkbox_showTitle;
     protected TextView label_titleText;
     protected EditText text_titleText;
+    protected CheckBox checkbox_showLabels;
 
     protected LocationConfigView locationConfig;
 
@@ -509,6 +511,13 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
         }
 
         //
+        // widget: show labels
+        //
+        checkbox_showLabels = (CheckBox) findViewById(R.id.appwidget_appearance_showLabels);
+        showOptionLabels(false);
+
+
+        //
         // widget: allow resize
         //
         checkbox_allowResize = (CheckBox) findViewById(R.id.appwidget_appearance_allowResize);
@@ -560,8 +569,15 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
 
         //
         // widget: showWeeks
+        //
         checkbox_showWeeks = (CheckBox)findViewById(R.id.appwidget_general_showWeeks);
         showOptionWeeks(false);
+
+        //
+        // widget: showHours
+        //
+        checkbox_showHours = (CheckBox)findViewById(R.id.appwidget_general_showHours);
+        showOptionHours(false);
 
         //
         // widget: about button
@@ -833,6 +849,10 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
         // save:: title text
         String titleText = text_titleText.getText().toString().trim();
         WidgetSettings.saveTitleTextPref(context, appWidgetId, titleText);
+
+        // save: show labels
+        boolean showLabels = checkbox_showLabels.isChecked();
+        WidgetSettings.saveShowLabelsPref(context, appWidgetId, showLabels);
     }
 
     /**
@@ -872,6 +892,7 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
         }
 
         loadTitleSettings(context);
+        loadShowLabels(context);
     }
 
     protected void loadTitleSettings(Context context)
@@ -884,6 +905,12 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
         // load: title text
         String titleText = WidgetSettings.loadTitleTextPref(context, appWidgetId);
         text_titleText.setText(titleText);
+    }
+
+    protected void loadShowLabels(Context context)
+    {
+        boolean showLabels = WidgetSettings.loadShowLabelsPref(context, appWidgetId);
+        checkbox_showLabels.setChecked(showLabels);
     }
 
     /**
@@ -923,6 +950,10 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
         // save: showWeeks
         boolean showWeeks = checkbox_showWeeks.isChecked();
         WidgetSettings.saveShowWeeksPref(context, appWidgetId, showWeeks);
+
+        // save: showHours
+        boolean showHours = checkbox_showHours.isChecked();
+        WidgetSettings.saveShowHoursPref(context, appWidgetId, showHours);
 
         // save: time mode
         saveTimeMode(context);
@@ -965,6 +996,10 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
         // load: showWeeks
         boolean showWeeks = WidgetSettings.loadShowWeeksPref(context, appWidgetId);
         checkbox_showWeeks.setChecked(showWeeks);
+
+        // load: showHours
+        boolean showHours = WidgetSettings.loadShowHoursPref(context, appWidgetId);
+        checkbox_showHours.setChecked(showHours);
 
         // load: time mode
         loadTimeMode(context);
@@ -1156,6 +1191,15 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
         }
     }
 
+    protected void showOptionHours( boolean showOption )
+    {
+        View hoursOptionLayout = findViewById(R.id.appwidget_general_showHours_layout);
+        if (hoursOptionLayout != null)
+        {
+            hoursOptionLayout.setVisibility((showOption ? View.VISIBLE : View.GONE));
+        }
+    }
+
     /**
      * @param showCompareUI true: show comparison ui, false: hide comparison ui
      */
@@ -1177,6 +1221,17 @@ public class SuntimesConfigActivity0 extends AppCompatActivity
         if (layout_showNoon != null)
         {
             layout_showNoon.setVisibility((showOption ? View.VISIBLE : View.GONE));
+        }
+    }
+
+    /**
+     * @param showOption true; show labels option, false hide option
+     */
+    protected void showOptionLabels(boolean showOption)
+    {
+        if (checkbox_showLabels != null)
+        {
+            checkbox_showLabels.setVisibility((showOption) ? View.VISIBLE : View.GONE);
         }
     }
 
