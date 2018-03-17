@@ -30,6 +30,8 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.InsetDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
@@ -81,6 +83,9 @@ import com.forrestguice.suntimeswidget.settings.AppSettings;
 import com.forrestguice.suntimeswidget.settings.SolarEvents;
 import com.forrestguice.suntimeswidget.settings.WidgetSettings;
 import com.forrestguice.suntimeswidget.settings.WidgetTimezones;
+import com.forrestguice.suntimeswidget.settings.appcolors.AppColors;
+
+import org.w3c.dom.Text;
 
 import java.lang.reflect.Method;
 import java.text.DateFormat;
@@ -124,6 +129,7 @@ public class SuntimesActivity extends AppCompatActivity
     protected SuntimesEquinoxSolsticeDataset dataset2;
 
     private int color_textTimeDelta;
+    private AppColors appColors = null;
 
     // clock views
     private TextView txt_time;
@@ -152,6 +158,10 @@ public class SuntimesActivity extends AppCompatActivity
     private ImageButton btn_flipperPrev_tomorrow;
 
     private TextView txt_date,              txt_date2;
+    private TextView header_sunrise,        header_sunrise2;
+    private ImageView icon_sunrise,         icon_sunrise2;
+    private TextView header_sunset,         header_sunset2;
+    private ImageView icon_sunset,         icon_sunset2;
     private TextView txt_sunrise_actual,    txt_sunrise2_actual;
     private TextView txt_sunrise_civil,     txt_sunrise2_civil;
     private TextView txt_sunrise_nautical,  txt_sunrise2_nautical;
@@ -182,6 +192,7 @@ public class SuntimesActivity extends AppCompatActivity
     private boolean isRtl = false;
     private boolean userSwappedCard = false;
     private HashMap<SolarEvents.SolarEventField, TextView> timeFields;
+    private ArrayList<TextView> sunriseFields, sunsetFields;
 
     private boolean showWarnings = false;
     private SuntimesWarning timezoneWarning;
@@ -689,6 +700,12 @@ public class SuntimesActivity extends AppCompatActivity
             txt_date = (TextView) viewToday.findViewById(R.id.text_date);
             txt_date.setOnClickListener(dateTapClickListener(false));
 
+            header_sunrise = (TextView) viewToday.findViewById(R.id.label_time_sunrise);
+            header_sunset = (TextView) viewToday.findViewById(R.id.label_time_sunset);
+
+            icon_sunrise = (ImageView) viewToday.findViewById(R.id.icon_time_sunrise);
+            icon_sunset = (ImageView) viewToday.findViewById(R.id.icon_time_sunset);
+
             txt_sunrise_actual = (TextView) viewToday.findViewById(R.id.text_time_sunrise_actual);
             txt_sunset_actual = (TextView) viewToday.findViewById(R.id.text_time_sunset_actual);
             timeFields.put(new SolarEvents.SolarEventField(SolarEvents.SUNRISE, false), txt_sunrise_actual);
@@ -758,6 +775,12 @@ public class SuntimesActivity extends AppCompatActivity
         {
             txt_date2 = (TextView) viewTomorrow.findViewById(R.id.text_date);
             txt_date2.setOnClickListener(dateTapClickListener(true));
+
+            header_sunrise2 = (TextView) viewTomorrow.findViewById(R.id.label_time_sunrise);
+            header_sunset2 = (TextView) viewTomorrow.findViewById(R.id.label_time_sunset);
+
+            icon_sunrise2 = (ImageView) viewTomorrow.findViewById(R.id.icon_time_sunrise);
+            icon_sunset2 = (ImageView) viewTomorrow.findViewById(R.id.icon_time_sunset);
 
             txt_sunrise2_actual = (TextView) viewTomorrow.findViewById(R.id.text_time_sunrise_actual);
             txt_sunset2_actual = (TextView) viewTomorrow.findViewById(R.id.text_time_sunset_actual);
@@ -882,6 +905,9 @@ public class SuntimesActivity extends AppCompatActivity
      */
     private void initColors(Context context)
     {
+        appColors = AppSettings.loadAppColors(context);
+        Log.d("DEBUG", "initColors " + appColors);
+
         int[] colorAttrs = { android.R.attr.textColorPrimary };
         TypedArray typedArray = context.obtainStyledAttributes(colorAttrs);
         int def = Color.WHITE;
@@ -1484,7 +1510,54 @@ public class SuntimesActivity extends AppCompatActivity
         showNotes(dataset.isCalculated());
         showWarnings();
 
+        if (appColors != null) {
+            updateColors(appColors);
+        }
+
         startTimeTask();
+    }
+
+    protected void updateColors( @NonNull AppColors colors )
+    {
+        boolean themeIsDark = true;  // TODO
+        int colorSunrise = (themeIsDark ? colors.getDarkSunriseColor() : colors.getLightSunriseColor());
+        int colorSunset = (themeIsDark ? colors.getDarkSunsetColor() : colors.getLightSunsetColor());
+        
+        // apply sunrise colors
+        header_sunrise.setTextColor(colorSunrise);
+        header_sunrise2.setTextColor(colorSunrise);
+
+        SuntimesUtils.tintDrawable((InsetDrawable)icon_sunrise.getBackground(), colorSunrise, colorSunrise, 0);
+        SuntimesUtils.tintDrawable((InsetDrawable)icon_sunrise2.getBackground(), colorSunrise, colorSunrise, 0);
+
+        for (TextView field : sunriseFields)
+        {
+            field.setTextColor(colorSunrise);
+        }
+
+        // apply sunset colors
+        header_sunset.setTextColor(colorSunset);
+        header_sunset2.setTextColor(colorSunset);
+
+        SuntimesUtils.tintDrawable((InsetDrawable)icon_sunset.getBackground(), colorSunset, colorSunset, 0);
+        SuntimesUtils.tintDrawable((InsetDrawable)icon_sunset2.getBackground(), colorSunset, colorSunset, 0);
+
+        for (TextView field : sunsetFields)
+        {
+            field.setTextColor(colorSunset);
+        }
+
+        // blue and gold hour
+        row_blue8.updateColors(colorSunrise, colorSunset);
+        row_blue8_2.updateColors(colorSunrise, colorSunrise);
+
+        row_blue4.updateColors(colorSunset, colorSunrise);
+        row_blue4_2.updateColors(colorSunset, colorSunrise);
+
+        row_gold.updateColors(colorSunset, colorSunrise);
+        row_gold2.updateColors(colorSunset, colorSunrise);
+
+        Log.d("DEBUG", "updateColors (dark?" + themeIsDark + "): " + colors.name());
     }
 
     private void showWarnings()
@@ -1984,6 +2057,28 @@ public class SuntimesActivity extends AppCompatActivity
 
     private void initTimeFields()
     {
+        sunriseFields = new ArrayList<>();
+        sunriseFields.add(txt_sunrise_actual);
+        sunriseFields.add(txt_sunrise2_actual);
+        sunriseFields.add(txt_sunrise_civil);
+        sunriseFields.add(txt_sunrise2_civil);
+        sunriseFields.add(txt_sunrise_nautical);
+        sunriseFields.add(txt_sunrise2_nautical);
+        sunriseFields.add(txt_sunrise_astro);
+        sunriseFields.add(txt_sunrise2_astro);
+
+        sunsetFields = new ArrayList<>();
+        sunsetFields.add(txt_sunset_actual);
+        sunsetFields.add(txt_sunset2_actual);
+        sunsetFields.add(txt_sunset_civil);
+        sunsetFields.add(txt_sunset2_civil);
+        sunsetFields.add(txt_sunset_nautical);
+        sunsetFields.add(txt_sunset2_nautical);
+        sunsetFields.add(txt_sunset_astro);
+        sunsetFields.add(txt_sunset2_astro);
+        sunsetFields.add(txt_solarnoon);
+        sunsetFields.add(txt_solarnoon2);
+
         /**for (SolarEvents.SolarEventField key : timeFields.keySet())
         {
             TextView field = timeFields.get(key);
@@ -2170,6 +2265,17 @@ public class SuntimesActivity extends AppCompatActivity
                 {
                     fields[i].setText( values[i] );
                 }
+            }
+        }
+
+        public void updateColors( int ...colors )
+        {
+            for (int i=0; i<colors.length; i++)
+            {
+                if (i >= fields.length)
+                    break;
+
+                fields[i].setTextColor( colors[i] );
             }
         }
 
