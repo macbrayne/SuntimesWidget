@@ -445,8 +445,6 @@
     <string name="configLabel_themeName">Display:</string>               <!-- edit label -->
     <string name="configHint_themeName">Label</string>                   <!-- edit hint -->
 
-    <string name="addcolors_custname">colors<xliff:g id="#">%1$s</xliff:g></string>  <!-- suggested new color scheme id -->
-
     <!--
          APP SETTINGS
     -->
@@ -469,6 +467,10 @@
 
     <!-- App Setting: UI -->
     <string name="configLabel_ui">User Interface</string>                       <!-- group title -->
+
+    <!-- App Setting: Colors -->
+    <string name="configLabel_colors">Colors</string>                       <!-- pref title -->  <!-- TODO: i18n -->
+    <string name="addcolors_custname">colors<xliff:g id="#">%1$s</xliff:g></string>  <!-- suggested new color scheme id -->
 
     <!-- App Setting: Verbose Accessibility -->
     <string name="configLabel_accessibility_verbose">Verbose TalkBack</string>
