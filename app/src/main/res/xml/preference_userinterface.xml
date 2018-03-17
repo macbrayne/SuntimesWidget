@@ -12,6 +12,15 @@
             android:entries="@array/appThemes_display" android:entryValues="@array/appThemes_values"
             android:defaultValue="@string/def_app_appearance_theme" />
 
+        <Preference
+            android:key="app_appearance_colors"
+            android:title="@string/configLabel_colors"
+            android:summary="%s">
+            <intent
+                android:targetPackage="com.forrestguice.suntimeswidget"
+                android:targetClass="com.forrestguice.suntimeswidget.settings.appcolors.AppColorsActivity" />
+        </Preference>
+
     </PreferenceCategory>
 
     <PreferenceCategory
