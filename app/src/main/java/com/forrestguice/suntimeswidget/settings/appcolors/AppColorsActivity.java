@@ -18,11 +18,13 @@
 
 package com.forrestguice.suntimeswidget.settings.appcolors;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.forrestguice.suntimeswidget.R;
 import com.forrestguice.suntimeswidget.SuntimesUtils;
@@ -45,13 +47,10 @@ public class AppColorsActivity extends AppCompatActivity
     @Override
     public void onCreate(Bundle icicle)
     {
-        Bundle extras = getIntent().getExtras();
-        if (extras != null)
-        {
-            appTheme = extras.getInt(KEY_THEMEID, AppSettings.loadTheme(this));
-        } else {
-            appTheme = AppSettings.loadTheme(this);
-        }
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        appTheme = (extras != null ? extras.getInt(KEY_THEMEID, AppSettings.loadTheme(this))
+                                   : AppSettings.loadTheme(this));
 
         setTheme(appTheme);
         super.onCreate(icicle);
@@ -132,6 +131,15 @@ public class AppColorsActivity extends AppCompatActivity
                 restartActivity(themeId);
             }
         });
+        appColors.setSelectedColorsChangedListener(new AppColorsView.SelectedColorsChangedListener()
+        {
+            @Override
+            public void onSelectedColorsChanged(String colorSchemeName)
+            {
+                AppSettings.setAppColorsPref(AppColorsActivity.this, colorSchemeName);
+                Log.d("DEBUG", "selection changed, saving to prefs.. " + colorSchemeName);
+            }
+        });
     }
 
     protected void restartActivity(int themeID)
@@ -146,6 +154,14 @@ public class AppColorsActivity extends AppCompatActivity
         AppColorsActivity.this.finish();
         overridePendingTransition(0, 0);
         startActivity(intent);
+    }
+
+    protected void selectColors( AppColors colors )
+    {
+        Intent intent = new Intent();
+        intent.putExtra(KEY_SELECTED, appColors.selectedAppColors());
+        setResult(Activity.RESULT_OK, intent);
+        finish();
     }
 
 }

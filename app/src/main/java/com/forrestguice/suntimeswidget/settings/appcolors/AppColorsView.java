@@ -155,6 +155,7 @@ public class AppColorsView extends LinearLayout
             selectedScheme = parent.getItemAtPosition(position).toString();
             Log.d("DEBUG", "selectedSchemeChanged :: " + selectedScheme + " (" + position + ")");
             loadSettings(getContext());
+            signalSelectedColorsChanged(selectedScheme);
         }
 
         @Override
@@ -580,20 +581,38 @@ public class AppColorsView extends LinearLayout
     }
 
     /** Property: selectedThemeChangedListener */
-    protected SelectedThemeChangedListener listener = null;
+    protected SelectedThemeChangedListener themeListener = null;
     public void setSelectedThemeChangedListener(SelectedThemeChangedListener listener )
     {
-        this.listener = listener;
+        this.themeListener = listener;
     }
     public void clearSelectedThemeChangedListener()
     {
-        this.listener = null;
+        this.themeListener = null;
     }
     private void signalSelectedThemeChanged(int tabId)
     {
-        if (listener != null)
+        if (themeListener != null)
         {
-            listener.onSelectedThemeChanged(tabIdToStyleId(tabId));
+            themeListener.onSelectedThemeChanged(tabIdToStyleId(tabId));
+        }
+    }
+
+    /** Property: selectedColorsChangedListener */
+    protected SelectedColorsChangedListener selectListener = null;
+    public void setSelectedColorsChangedListener(SelectedColorsChangedListener listener)
+    {
+        this.selectListener = listener;
+    }
+    public void clearSelectColorsChangedListener()
+    {
+        this.selectListener = null;
+    }
+    private void signalSelectedColorsChanged( String schemeName )
+    {
+        if (selectListener != null)
+        {
+            selectListener.onSelectedColorsChanged(schemeName);
         }
     }
 
@@ -745,6 +764,14 @@ public class AppColorsView extends LinearLayout
     public static abstract class SelectedThemeChangedListener
     {
         public void onSelectedThemeChanged(int themeId ) {}
+    }
+
+    /**
+     * SelectedColorsChangedListener
+     */
+    public static abstract class SelectedColorsChangedListener
+    {
+        public void onSelectedColorsChanged(String colorSchemeName) {}
     }
 
 }
