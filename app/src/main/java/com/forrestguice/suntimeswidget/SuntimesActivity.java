@@ -76,13 +76,13 @@ import android.widget.ViewFlipper;
 import com.forrestguice.suntimeswidget.calculator.SuntimesCalculator;
 import com.forrestguice.suntimeswidget.calculator.SuntimesEquinoxSolsticeDataset;
 
+import com.forrestguice.suntimeswidget.calculator.SuntimesMoonData;
 import com.forrestguice.suntimeswidget.calculator.SuntimesRiseSetDataset;
 import com.forrestguice.suntimeswidget.getfix.GetFixHelper;
 import com.forrestguice.suntimeswidget.getfix.GetFixUI;
 import com.forrestguice.suntimeswidget.notes.NoteChangedListener;
 import com.forrestguice.suntimeswidget.notes.NoteData;
 import com.forrestguice.suntimeswidget.notes.SuntimesNotes;
-import com.forrestguice.suntimeswidget.notes.SuntimesNotes3;
 import com.forrestguice.suntimeswidget.settings.AppSettings;
 import com.forrestguice.suntimeswidget.settings.SolarEvents;
 import com.forrestguice.suntimeswidget.settings.WidgetSettings;
@@ -124,6 +124,7 @@ public class SuntimesActivity extends AppCompatActivity
     private static final String DIALOGTAG_DATE = "dateselect";
     private static final String DIALOGTAG_LIGHTMAP = "lightmap";
     private static final String DIALOGTAG_EQUINOX = "equinox";
+    private static final String DIALOGTAG_MOON = "moon";
 
     protected static final SuntimesUtils utils = new SuntimesUtils();
 
@@ -139,6 +140,7 @@ public class SuntimesActivity extends AppCompatActivity
     protected SuntimesNotes notes;
     protected SuntimesRiseSetDataset dataset;
     protected SuntimesEquinoxSolsticeDataset dataset2;
+    protected SuntimesMoonData dataset3;
 
     private int color_textTimeDelta;
     private AppColors appColors = null;
@@ -192,6 +194,11 @@ public class SuntimesActivity extends AppCompatActivity
     private TextView txt_daylength,         txt_daylength2;
     private TextView txt_lightlength,       txt_lightlength2;
 
+    private TextView moonlabel,             moonlabel2;
+    private MoonPhaseView moonphase,        moonphase2;
+    private MoonRiseSetView moonrise,       moonrise2;
+    private View moonClickArea,             moonClickArea2;
+
     private EquinoxView card_equinoxSolstice;
     private View equinoxLayout;
 
@@ -214,6 +221,7 @@ public class SuntimesActivity extends AppCompatActivity
     private boolean showSeconds = WidgetSettings.PREF_DEF_GENERAL_SHOWSECONDS;
     private boolean showGold = AppSettings.PREF_DEF_UI_SHOWGOLDHOUR;
     private boolean showBlue = AppSettings.PREF_DEF_UI_SHOWBLUEHOUR;
+    private boolean showMoon = AppSettings.PREF_DEF_UI_SHOWMOON;
     private boolean verboseAccessibility = AppSettings.PREF_DEF_ACCESSIBILITY_VERBOSE;
 
     public SuntimesActivity()
@@ -304,6 +312,8 @@ public class SuntimesActivity extends AppCompatActivity
         getFixHelper.onResume();
 
         // restore open dialogs
+        updateDialogs(this);
+
         FragmentManager fragments = getSupportFragmentManager();
         TimeZoneDialog timezoneDialog = (TimeZoneDialog) fragments.findFragmentByTag(DIALOGTAG_TIMEZONE);
         if (timezoneDialog != null)
@@ -311,14 +321,6 @@ public class SuntimesActivity extends AppCompatActivity
             timezoneDialog.setOnAcceptedListener(onConfigTimeZone);
             timezoneDialog.setOnCanceledListener(onCancelTimeZone);
             //Log.d("DEBUG", "TimeZoneDialog listeners restored.");
-        }
-
-        AlarmDialog alarmDialog = (AlarmDialog) fragments.findFragmentByTag(DIALOGTAG_ALARM);
-        if (alarmDialog != null)
-        {
-            alarmDialog.setData(this, dataset);
-            alarmDialog.setOnAcceptedListener(alarmDialog.scheduleAlarmClickListener);
-            //Log.d("DEBUG", "AlarmDialog listeners restored.");
         }
 
         LocationConfigDialog locationDialog = (LocationConfigDialog) fragments.findFragmentByTag(DIALOGTAG_LOCATION);
@@ -335,6 +337,19 @@ public class SuntimesActivity extends AppCompatActivity
             dateDialog.setOnCanceledListener(onCancelDate);
             //Log.d("DEBUG", "TimeDateDialog listeners restored.");
         }
+    }
+
+    private void updateDialogs(Context context)
+    {
+        FragmentManager fragments = getSupportFragmentManager();
+
+        AlarmDialog alarmDialog = (AlarmDialog) fragments.findFragmentByTag(DIALOGTAG_ALARM);
+        if (alarmDialog != null)
+        {
+            alarmDialog.setData(this, dataset, dataset3);
+            alarmDialog.setOnAcceptedListener(alarmDialog.scheduleAlarmClickListener);
+            //Log.d("DEBUG", "AlarmDialog listeners restored.");
+        }
 
         LightMapDialog lightMapDialog = (LightMapDialog) fragments.findFragmentByTag(DIALOGTAG_LIGHTMAP);
         if (lightMapDialog != null)
@@ -347,9 +362,17 @@ public class SuntimesActivity extends AppCompatActivity
         EquinoxDialog equinoxDialog = (EquinoxDialog) fragments.findFragmentByTag(DIALOGTAG_EQUINOX);
         if (equinoxDialog != null)
         {
-            equinoxDialog.setData(dataset2);
-            equinoxDialog.updateViews(dataset2);
+            equinoxDialog.setData((dataset2 != null) ? dataset2 : new SuntimesEquinoxSolsticeDataset(SuntimesActivity.this));
+            equinoxDialog.updateViews();
             //Log.d("DEBUG", "EquinoxDialog updated on restore.");
+        }
+
+        MoonDialog moonDialog = (MoonDialog) fragments.findFragmentByTag(DIALOGTAG_MOON);
+        if (moonDialog != null)
+        {
+            moonDialog.setData((dataset3 != null) ? dataset3 : new SuntimesMoonData(SuntimesActivity.this, 0, "moon"));
+            moonDialog.updateViews();
+            //Log.d("DEBUG", "MoonDialog updated on restore.");
         }
     }
 
@@ -455,6 +478,7 @@ public class SuntimesActivity extends AppCompatActivity
                 invalidateData(SuntimesActivity.this);
                 calculateData(SuntimesActivity.this);
                 setFullUpdateAlarm(SuntimesActivity.this);
+                updateDialogs(SuntimesActivity.this);
                 updateViews(SuntimesActivity.this);
             }
         }
@@ -910,6 +934,12 @@ public class SuntimesActivity extends AppCompatActivity
             icon_sunrise = (ImageView) viewToday.findViewById(R.id.icon_time_sunrise);
             icon_sunset = (ImageView) viewToday.findViewById(R.id.icon_time_sunset);
 
+            View sunriseHeader = viewToday.findViewById(R.id.header_time_sunrise);
+            sunriseHeader.setOnClickListener(onSunriseClick);
+
+            View sunsetHeader = viewToday.findViewById(R.id.header_time_sunset);
+            sunsetHeader.setOnClickListener(onSunsetClick);
+
             txt_sunrise_actual = (TextView) viewToday.findViewById(R.id.text_time_sunrise_actual);
             txt_sunset_actual = (TextView) viewToday.findViewById(R.id.text_time_sunset_actual);
             timeFields.put(new SolarEvents.SolarEventField(SolarEvents.SUNRISE, false), txt_sunrise_actual);
@@ -949,6 +979,18 @@ public class SuntimesActivity extends AppCompatActivity
             txt_daylength = (TextView) viewToday.findViewById(R.id.text_daylength);
             txt_lightlength = (TextView) viewToday.findViewById(R.id.text_lightlength);
 
+            moonlabel = (TextView) viewToday.findViewById(R.id.text_time_label_moon);
+            moonphase = (MoonPhaseView) viewToday.findViewById(R.id.moonphase_view);
+
+            moonrise = (MoonRiseSetView) viewToday.findViewById(R.id.moonriseset_view);
+            moonrise.setShowExtraField(false);
+            timeFields.put(new SolarEvents.SolarEventField(SolarEvents.MOONRISE, false), null);
+            timeFields.put(new SolarEvents.SolarEventField(SolarEvents.MOONSET, false), null);
+
+            moonClickArea = viewToday.findViewById(R.id.moonphase_clickArea);
+            moonClickArea.setOnClickListener(onMoonriseClick);
+            moonClickArea.setOnLongClickListener(onMoonriseLongClick);
+
             btn_flipperNext_today = (ImageButton)viewToday.findViewById(R.id.info_time_nextbtn);
             btn_flipperNext_today.setOnClickListener(onNextCardClick);
             btn_flipperNext_today.setOnTouchListener(new View.OnTouchListener()
@@ -985,6 +1027,12 @@ public class SuntimesActivity extends AppCompatActivity
 
             icon_sunrise2 = (ImageView) viewTomorrow.findViewById(R.id.icon_time_sunrise);
             icon_sunset2 = (ImageView) viewTomorrow.findViewById(R.id.icon_time_sunset);
+
+            View sunriseHeader2 = viewTomorrow.findViewById(R.id.header_time_sunrise);
+            sunriseHeader2.setOnClickListener(onSunriseClick);
+
+            View sunsetHeader2 = viewTomorrow.findViewById(R.id.header_time_sunset);
+            sunsetHeader2.setOnClickListener(onSunsetClick);
 
             txt_sunrise2_actual = (TextView) viewTomorrow.findViewById(R.id.text_time_sunrise_actual);
             txt_sunset2_actual = (TextView) viewTomorrow.findViewById(R.id.text_time_sunset_actual);
@@ -1024,6 +1072,21 @@ public class SuntimesActivity extends AppCompatActivity
             layout_daylength2 = (LinearLayout) viewTomorrow.findViewById(R.id.layout_daylength);
             txt_daylength2 = (TextView) viewTomorrow.findViewById(R.id.text_daylength);
             txt_lightlength2 = (TextView) viewTomorrow.findViewById(R.id.text_lightlength);
+
+            moonlabel2 = (TextView) viewTomorrow.findViewById(R.id.text_time_label_moon);
+
+            moonphase2 = (MoonPhaseView) viewTomorrow.findViewById(R.id.moonphase_view);
+            moonphase2.setTomorrowMode(true);
+
+            moonrise2 = (MoonRiseSetView) viewTomorrow.findViewById(R.id.moonriseset_view);
+            moonrise2.setShowExtraField(false);
+            moonrise2.setTomorrowMode(true);
+            timeFields.put(new SolarEvents.SolarEventField(SolarEvents.MOONRISE, true), null);
+            timeFields.put(new SolarEvents.SolarEventField(SolarEvents.MOONSET, true), null);
+
+            moonClickArea2 = viewTomorrow.findViewById(R.id.moonphase_clickArea);
+            moonClickArea2.setOnClickListener(onMoonriseClick);
+            moonClickArea2.setOnLongClickListener(onMoonriseLongClick);
 
             btn_flipperNext_tomorrow = (ImageButton)viewTomorrow.findViewById(R.id.info_time_nextbtn);
             btn_flipperNext_tomorrow.setOnClickListener(onNextCardClick);
@@ -1126,8 +1189,8 @@ public class SuntimesActivity extends AppCompatActivity
      */
     private void initNotes()
     {
-        notes = new SuntimesNotes3();
-        notes.init(this, dataset);
+        notes = new SuntimesNotes();
+        notes.init(this, dataset, dataset3);
         notes.setOnChangedListener(new NoteChangedListener()
         {
             @Override
@@ -1137,6 +1200,22 @@ public class SuntimesActivity extends AppCompatActivity
             }
         });
     }
+
+    private View.OnClickListener onMoonriseClick = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v) {
+            showMoonDialog();
+        }
+    };
+    private View.OnLongClickListener onMoonriseLongClick = new View.OnLongClickListener()
+    {
+        @Override
+        public boolean onLongClick(View v) {
+            showMoonDialog();
+            return true;
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -1199,6 +1278,10 @@ public class SuntimesActivity extends AppCompatActivity
 
             case R.id.action_equinox:
                 showEquinoxDialog();
+                return true;
+
+            case R.id.action_moon:
+                showMoonDialog();
                 return true;
 
             case R.id.action_sunposition:
@@ -1368,11 +1451,17 @@ public class SuntimesActivity extends AppCompatActivity
      */
     protected void showHelp()
     {
-        String topic1 = getString(R.string.help_general_timeMode);
-        String topic2 = getString(R.string.help_general_daylength);
-        String topic3 = getString(R.string.help_general_goldhour);
-        String topic4 = getString(R.string.help_general_bluehour);
-        String helpText = getString(R.string.help_general4, topic1, topic2, topic3, topic4);
+        String timeModes = getString(R.string.help_general_timeMode);
+        String dayLength = getString(R.string.help_general_daylength);
+        String timeText = getString(R.string.help_general2, timeModes, dayLength);
+
+        String goldHour = getString(R.string.help_general_goldhour);
+        String blueHour = getString(R.string.help_general_bluehour);
+        String blueGoldText = getString(R.string.help_general2, blueHour, goldHour);
+
+        String moonIllum = getString(R.string.help_general_moonillum);
+
+        String helpText = getString(R.string.help_general3, timeText, blueGoldText, moonIllum);
 
         HelpDialog helpDialog = new HelpDialog();
         helpDialog.setContent(helpText);
@@ -1424,7 +1513,7 @@ public class SuntimesActivity extends AppCompatActivity
         if (dataset.isCalculated())
         {
             AlarmDialog alarmDialog = new AlarmDialog();
-            alarmDialog.setData(this, dataset);
+            alarmDialog.setData(this, dataset, dataset3);
             alarmDialog.setChoice(selected);
             alarmDialog.setOnAcceptedListener(alarmDialog.scheduleAlarmClickListener);
             alarmDialog.show(getSupportFragmentManager(), DIALOGTAG_ALARM);
@@ -1449,6 +1538,7 @@ public class SuntimesActivity extends AppCompatActivity
     {
         dataset = new SuntimesRiseSetDataset(context);
         dataset2 = (AppSettings.loadShowEquinoxPref(context) ? new SuntimesEquinoxSolsticeDataset(context) : null);
+        dataset3 = (AppSettings.loadShowMoonPref(context) ? new SuntimesMoonData(context, 0, "moon") : null);
     }
 
     protected void calculateData( Context context )
@@ -1461,6 +1551,9 @@ public class SuntimesActivity extends AppCompatActivity
         if (dataset2 != null)
             dataset2.calculateData();
 
+        if (dataset3 != null)
+            dataset3.calculate();
+
         initNotes();
     }
 
@@ -1471,6 +1564,10 @@ public class SuntimesActivity extends AppCompatActivity
 
         if (dataset2 != null)
             dataset2.invalidateCalculation();
+
+        if (dataset3 != null)
+            dataset3.invalidateCalculation();
+
         updateViews(context);
     }
 
@@ -1499,6 +1596,10 @@ public class SuntimesActivity extends AppCompatActivity
 
         showBlue = AppSettings.loadBlueHourPref(context) && supportsGoldBlue;
         showBlueTimes(showBlue);
+
+        boolean supportsMoon = (dataset3 != null);
+        showMoon = supportsMoon && AppSettings.loadShowMoonPref(context);
+        showMoonrise(showMoon);
 
         showSeconds = WidgetSettings.loadShowSecondsPref(context, 0);
 
@@ -1599,6 +1700,12 @@ public class SuntimesActivity extends AppCompatActivity
             String lightLength2 = lightLengthDisplay2.toString();
             String lightLength2_label = getString(R.string.length_light, lightLength2);
             txt_lightlength2.setText(SuntimesUtils.createBoldColorSpan(null, lightLength2_label, lightLength2, color_textTimeDelta));
+
+            moonphase.updateViews(SuntimesActivity.this, dataset3);
+            moonrise.updateViews(SuntimesActivity.this, dataset3);
+
+            moonphase2.updateViews(SuntimesActivity.this, dataset3);
+            moonrise2.updateViews(SuntimesActivity.this, dataset3);
 
         } else {
             String notCalculated = getString(R.string.time_loading);
@@ -2105,6 +2212,26 @@ public class SuntimesActivity extends AppCompatActivity
         }
     };
 
+    View.OnClickListener onSunriseClick = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            setUserSwappedCard(false, "onSunriseClick");
+            notes.setNoteIndex(notes.getNoteIndex(SolarEvents.SUNRISE));
+        }
+    };
+
+    View.OnClickListener onSunsetClick = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            setUserSwappedCard(false, "onSunsetClick");
+            notes.setNoteIndex(notes.getNoteIndex(SolarEvents.SUNSET));
+        }
+    };
+
     View.OnClickListener onTimeZoneClick = new View.OnClickListener()
     {
         @Override
@@ -2166,6 +2293,24 @@ public class SuntimesActivity extends AppCompatActivity
     }
 
     /**
+     * @param value
+     */
+    protected void showMoonrise( boolean value )
+    {
+        int visibility = (value ? View.VISIBLE : View.GONE);
+
+        moonClickArea.setVisibility(visibility);
+        moonlabel.setVisibility(visibility);
+        moonrise.setVisibility(visibility);
+        moonphase.setVisibility(visibility);
+
+        moonClickArea2.setVisibility(visibility);
+        moonlabel2.setVisibility(visibility);
+        moonrise2.setVisibility(visibility);
+        moonphase2.setVisibility(visibility);
+    }
+
+    /**
      * Toggle note flipper visibility.
      * @param value true show note ui, false hide note ui
      */
@@ -2201,8 +2346,15 @@ public class SuntimesActivity extends AppCompatActivity
     protected void showEquinoxDialog()
     {
         EquinoxDialog equinoxDialog = new EquinoxDialog();
-        equinoxDialog.setData(dataset2);
+        equinoxDialog.setData((dataset2 != null) ? dataset2 : new SuntimesEquinoxSolsticeDataset(SuntimesActivity.this));
         equinoxDialog.show(getSupportFragmentManager(), DIALOGTAG_EQUINOX);
+    }
+
+    protected void showMoonDialog()
+    {
+        MoonDialog moonDialog = new MoonDialog();
+        moonDialog.setData((dataset3 != null) ? dataset3 : new SuntimesMoonData(SuntimesActivity.this, 0, "moon"));
+        moonDialog.show(getSupportFragmentManager(), DIALOGTAG_MOON);
     }
 
     protected void showBlueTimes( boolean value )
@@ -2320,25 +2472,38 @@ public class SuntimesActivity extends AppCompatActivity
 
         for (SolarEvents.SolarEventField field : timeFields.keySet())
         {
-            TextView txtField = timeFields.get(field);
-            if (txtField != null)
+            boolean isMoonField = (field.event == SolarEvents.MOONRISE || field.event == SolarEvents.MOONSET);
+            TextView[] txtFields;
+
+            if (isMoonField)
             {
-                if (field.equals(highlightField))
+                MoonRiseSetView moonView = (field.tomorrow ? moonrise2 : moonrise);
+                txtFields = moonView.getTimeViews(field.event);
+
+            } else {
+                txtFields = new TextView[] { timeFields.get(field) };
+            }
+
+            for (TextView txtField : txtFields)
+            {
+                if (txtField != null && txtField.getVisibility() == View.VISIBLE)
                 {
-                    txtField.setTypeface(txtField.getTypeface(), Typeface.BOLD);
-                    txtField.setPaintFlags(txtField.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-
-                    if (currentCard == 0 && field.tomorrow)
+                    if (field.equals(highlightField))
                     {
-                        nextCardOffset = 1;
+                        txtField.setTypeface(txtField.getTypeface(), Typeface.BOLD);
+                        txtField.setPaintFlags(txtField.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
-                    } else if (currentCard == 1 && !field.tomorrow) {
-                        nextCardOffset = -1;
+                        if (currentCard == 0 && field.tomorrow) {
+                            nextCardOffset = 1;
+
+                        } else if (currentCard == 1 && !field.tomorrow) {
+                            nextCardOffset = -1;
+                        }
+
+                    } else {
+                        txtField.setTypeface(Typeface.create(txtField.getTypeface(), Typeface.NORMAL), Typeface.NORMAL);
+                        txtField.setPaintFlags(txtField.getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
                     }
-
-                } else {
-                    txtField.setTypeface(Typeface.create(txtField.getTypeface(), Typeface.NORMAL), Typeface.NORMAL);
-                    txtField.setPaintFlags(txtField.getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
                 }
             }
         }
